@@ -7,22 +7,24 @@ Pause zurückholt._
 
 **Zuletzt gemacht:**
 
-> Repo initialisiert: Unity-6-URP-Projekt (`vrithof-game/`), `.gitignore` aufgesetzt,
-> Plan/Design/Regeln committet und gepusht.
+> M1 fertig: FP-Controller läuft, Gehöft-Blockout via `GehoeftBuilder` (Tür + 2 Fenster,
+> Öffnungs-Marker), Tag/Nacht-Zyklus mit Uhr — Nacht wird stockdunkel (Sonne, Ambient,
+> Reflexion, Skybox-Exposure faden gemeinsam).
 
 **Läuft der Build?**
 
-> Ja — leeres URP-Projekt, öffnet in Unity 6000.5.10f1.
+> Ja — in Play/Game-View. Dunkelheit nur zur Laufzeit sichtbar.
 
 **Als Nächstes dran:**
 
-> Session 1 / M1: FP-Controller (Starter Assets: First Person) importieren und in eine
-> graue Box-Welt setzen.
+> M2 / Session 2: NavMesh backen, Zombie = Kapsel mit NavMeshAgent + `SetDestination(player)`.
+> Berührung → Schaden → Tod → Szene neu laden.
 
 **Wo der Hund begraben liegt:**
 
-> Noch nichts gebaut — erste echte Stelle kommt mit M1.
+> `TageszeitZyklus` stellt `RenderSettings` global um (Ambient → Flat, eigene Skybox-Instanz)
+> — nur zur Laufzeit, revertet nach Play. Zum Beurteilen **Game-View im Play**, nicht Scene-View.
 
 ---
 
-**Aktueller Meilenstein:** M1
+**Aktueller Meilenstein:** M2
