@@ -1,0 +1,17 @@
+# ==============================================================
+# Vrîthof — Root .gitignore (OS / Editoren)
+# Unity-spezifische Regeln stehen in vrithof-game/.gitignore
+# ==============================================================
+
+# --- macOS ----------------------------------------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# --- Editoren -------------------------------------------------
+.idea/
+.vscode/
+*.swp

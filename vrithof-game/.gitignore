@@ -1,0 +1,104 @@
+# ==============================================================
+# Vrîthof — .gitignore
+# Unity 6 (URP). Basis: github/gitignore/Unity.gitignore
+# ==============================================================
+
+# --- Unity ----------------------------------------------------
+.utmp/
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+*.log
+
+# Unity liest .blend direkt — .blend1-Backups nicht committen.
+*.blend1
+*.blend1.meta
+
+# MemoryCaptures können riesig werden und sensible Daten enthalten.
+/[Mm]emoryCaptures/
+
+# Recordings können riesig werden.
+/[Rr]ecordings/
+
+# Rider-Plugin / persönliche Settings
+/[Aa]ssets/Plugins/Editor/JetBrains*
+*.DotSettings.user
+
+# Caches
+.vs/
+.gradle/
+
+# Autogenerierte Solution-/Projektdateien
+ExportedObj/
+.consulo/
+*.csproj
+*.unityproj
+*.sln
+*.slnx
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Unity-generierte Meta-Dateien
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+
+# Crash-Reports
+sysinfo.txt
+mono_crash.*
+
+# Builds
+*.apk
+*.aab
+*.unitypackage
+*.unitypackage.meta
+*.app
+
+# Crashlytics
+crashlytics-build.properties
+
+# TestRunner
+InitTestScene*.unity*
+
+# Addressables
+/ServerData
+/[Aa]ssets/StreamingAssets/aa*
+/[Aa]ssets/AddressableAssetsData/link.xml*
+/[Aa]ssets/Addressables_Temp*
+/[Aa]ssets/AddressableAssetsData/*/*.bin*
+
+# Visual Scripting
+/[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Flow/UnitOptions.db
+/[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Flow/UnitOptions.db.meta
+/[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Core/Property Providers
+/[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Core/Property Providers.meta
+
+# Auto-generierte Test-Szenen / Caches im Assets-Ordner
+/[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+/[Aa]ssets/[Ss]ceneDependencyCache*
+
+# --- macOS ----------------------------------------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# --- Editoren -------------------------------------------------
+.idea/
+.vscode/
+*.swp
