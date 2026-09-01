@@ -7,8 +7,8 @@
 
 ## Wo stehe ich?
 
-- [ ] M1 — Es existiert
-- [ ] M2 — Es ist gefährlich
+- [x] M1 — Es existiert
+- [x] M2 — Es ist gefährlich
 - [ ] M3 — Die Nacht funktioniert
 - [ ] M3.5 — Atmosphären-Abend
 - [ ] M4 — Der Loop schließt sich ⭐ **← der eigentliche POC**
