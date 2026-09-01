@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace Vrithof.Zeit
@@ -25,11 +26,29 @@ namespace Vrithof.Zeit
         [Tooltip("Umgebungslicht in der Nacht. Fast schwarz = stockdunkel.")]
         public Color nachtAmbient = new Color(0.02f, 0.02f, 0.03f);
 
+        [Header("Nacht")]
+        [Range(0f, 24f)]
+        [Tooltip("Ab dieser Stunde kommen sie.")]
+        public float nachtBeginn = 20f;
+        [Range(0f, 24f)]
+        [Tooltip("Ab dieser Stunde ist es ueberstanden.")]
+        public float nachtEnde = 6f;
+
         [Header("Uhr-Anzeige")]
         public bool uhrZeigen = true;
 
+        /// Feuern beim Uebergang, mit der Nummer des angebrochenen Tages.
+        /// Daran haengt der Spawner — der Zyklus selbst weiss nichts von Zombies.
+        public event Action<int> NachtBeginnt;
+        public event Action<int> TagBeginnt;
+
+        public float Stunde => stunde;
+        public int Tag => tag;
+        public bool IstNacht => stunde >= nachtBeginn || stunde < nachtEnde;
+
         float stunde;   // 0..24
         int tag = 1;
+        bool warNacht;
         Light sonne;
         float maxIntensitaet;
         Material himmel;         // eigene Instanz der Skybox, damit wir sie faden duerfen
@@ -51,6 +70,7 @@ namespace Vrithof.Zeit
                 RenderSettings.skybox = himmel;
             }
             stunde = startStunde;
+            warNacht = IstNacht;
             Anwenden();
         }
 
@@ -60,6 +80,16 @@ namespace Vrithof.Zeit
             stunde += stundenProSekunde * Time.deltaTime;
             while (stunde >= 24f) { stunde -= 24f; tag++; }
             Anwenden();
+            UebergangPruefen();
+        }
+
+        void UebergangPruefen()
+        {
+            bool jetztNacht = IstNacht;
+            if (jetztNacht == warNacht) return;
+            warNacht = jetztNacht;
+            if (jetztNacht) NachtBeginnt?.Invoke(tag);
+            else TagBeginnt?.Invoke(tag);
         }
 
         void Anwenden()
@@ -87,7 +117,9 @@ namespace Vrithof.Zeit
             int m = Mathf.FloorToInt((stunde - h) * 60f);
             var style = new GUIStyle(GUI.skin.label) { fontSize = 20 };
             style.normal.textColor = Color.white;
-            GUI.Label(new Rect(12, 8, 300, 30), $"Tag {tag} · {h:00}:{m:00}", style);
+            if (IstNacht) style.normal.textColor = new Color(0.6f, 0.75f, 1f);
+            GUI.Label(new Rect(12, 8, 300, 30),
+                      $"Tag {tag} · {h:00}:{m:00}{(IstNacht ? "  ☾" : "")}", style);
         }
     }
 }

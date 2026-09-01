@@ -330,6 +330,12 @@ ein monatelanges Tuning-Loch.
 - **Karte als findbares Item**, unvollständig. Gegenmittel gegen den
   Übersichtsverlust in First Person.
 - **Werkzeug-Haltbarkeit.** Klingen stumpfen ab, Wetzstein, Eisen als Reparaturkosten.
+- **Eigener Player-Controller mit Gewicht.** Der Starter-Asset-Controller wird ersetzt.
+  Ziel ist Trägheit statt Reaktionsfreude: Beschleunigung und Abbremsen brauchen Zeit,
+  Rüstung macht schwerer — und **lauter**, was direkt ans Lärm-System andockt. Damit
+  wird Ausrüstung eine Abwägung statt eine Verbesserung. Bis dahin bleibt der
+  Starter-Asset-Controller stehen, samt seiner Wandreibung: ihn zu reparieren wäre
+  Arbeit an etwas, das sowieso wegfliegt.
 - **Licht als Ressource.** Talg und Wachs waren teuer, Nacht im Mittelalter ist
   vollständige Dunkelheit. In FP enorm stark.
 
@@ -353,6 +359,14 @@ ein monatelanges Tuning-Loch.
   Übersicht. Zomboid ist isometrisch, *weil* Vorausschau Übersicht braucht. Gegenmittel
   ab Ausbaustufe 2: Karte als Item, Aussichtsturm, Markierungen setzen. Im POC kein
   Thema, weil die Welt klein ist.
+- **Warum verbarrikadieren, wenn Weglaufen reicht?** Im M3-Test gab es keinen
+  Anreiz, die Hütte zu halten. Der Spieler ist schneller als die Zombies,
+  Wegrennen kostet nichts, und eine Barrikade bringt vor allem das Risiko, sie
+  nicht rechtzeitig zu reparieren. **Die Nacht braucht einen Grund, an einem Ort
+  zu bleiben.** Kandidaten: Schlaf (ohne Rast ist der nächste Tag schwächer),
+  ein Lager (Vorräte liegen in der Basis und gehen verloren), Erschöpfung über
+  Nacht. Ungelöst — und mit M4 dringend, weil der nächste Tag dann zum ersten
+  Mal etwas wert ist.
 - **Horden-Rhythmus.** Alle 3 Tage ist ein Startwert, kein Ergebnis. Wird beim Testen
   gedreht.
 - **Gehöft-Layout.** Wie viele Öffnungen kann ein Spieler realistisch verteidigen?

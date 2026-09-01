@@ -5,6 +5,11 @@ Nur was im Spiel gelandet ist.
 
 ---
 
+## 2026-09-02 — M3: Die Nacht funktioniert
+- Öffnungen verbarrikadierbar: Bretter nageln, ausbessern, abbauen — Eisen ist knapp
+- Lärm- und Sichtsystem: Zombies folgen Geräuschen statt dem Spieler, Schleichen und Abwimmeln funktionieren
+- Nacht-Zyklus mit Spawner und Horde alle 3 Nächte, Fenster-Durchsteigen, erzeugte Platzhalter-Sounds
+
 ## 2026-09-01 — M2: Es ist gefährlich
 - NavMesh gebacken, Zombie (Kapsel + NavMeshAgent) verfolgt den Spieler und schlägt zu
 - Spielerleben mit Anzeige, Tod lädt die Szene neu

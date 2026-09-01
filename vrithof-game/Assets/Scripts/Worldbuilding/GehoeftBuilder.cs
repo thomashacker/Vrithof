@@ -13,8 +13,8 @@ namespace Vrithof.Worldbuilding
     public class GehoeftBuilder : MonoBehaviour
     {
         [Header("Grundriss (Meter)")]
-        public float breite = 8f;    // X-Achse
-        public float tiefe = 6f;     // Z-Achse
+        public float breite = 10f;   // X-Achse
+        public float tiefe = 8f;     // Z-Achse
         public float wandHoehe = 3f;
         public float wandDicke = 0.3f;
 
@@ -22,10 +22,23 @@ namespace Vrithof.Worldbuilding
         public float tuerBreite = 1.2f;
         public float tuerHoehe = 2.2f;
 
-        [Header("Fenster (Ost- & West-Wand)")]
+        [Header("Fenster (Ost- & West-Wand, je zwei)")]
         public float fensterBreite = 1.2f;
         public float fensterHoehe = 1.2f;
         public float fensterBruestung = 1.2f;   // Wandstueck unter dem Fenster
+        [Tooltip("Abstand der beiden Fenster von der Wandmitte (entlang Z). Das " +
+                 "noerdliche Fenster muss hinter der Innenwand liegen, sonst hat der " +
+                 "innere Raum keine eigene Oeffnung.")]
+        public float fensterAbstand = 2.5f;
+
+        [Header("Innerer Raum")]
+        [Tooltip("Trennwand im Norden. Ohne sie gibt es keinen Rueckzugsraum und " +
+                 "damit eine Entscheidung weniger.")]
+        public bool innenraumBauen = true;
+        [Tooltip("Tiefe des inneren Raums, gemessen von der Nordwand.")]
+        public float innenraumTiefe = 3f;
+        public float innenTuerBreite = 1.2f;
+        public float innenTuerHoehe = 2.2f;
 
         [Header("Boden & Dach")]
         public bool bodenBauen = true;
@@ -33,10 +46,18 @@ namespace Vrithof.Worldbuilding
         public float bodenDicke = 0.2f;
         public float dachDicke = 0.2f;
 
+        [Header("Barrikaden (Startwerte fuer die Openables)")]
+        [Tooltip("HP des Tuerblatts. Der Spieler geht durch, Zombies muessen es " +
+                 "einschlagen. Fenster bekommen 0 — sie sind Loecher.")]
+        public float tuerGrundHP = 100f;
+        public int tuerMaxBretter = 4;
+        public int fensterMaxBretter = 3;
+
         [Header("Material (optional, sonst Unity-Standard)")]
         public Material wandMaterial;
         public Material bodenMaterial;
         public Material dachMaterial;
+        public Material brettMaterial;
 
         // Eine Oeffnung in Wand-lokalen Koordinaten.
         struct Oeffnung
@@ -71,17 +92,28 @@ namespace Vrithof.Worldbuilding
             WandBauen("Wand_Nord", new Vector3(0, 0, tiefe * 0.5f), 0f, breite,
                 new List<Oeffnung>());
 
-            // West (-X): Fenster
-            WandBauen("Wand_West", new Vector3(-breite * 0.5f, 0, 0), 90f, tiefe,
-                new List<Oeffnung> {
-                    new Oeffnung { u = 0, breite = fensterBreite, bruestung = fensterBruestung,
-                                   hoehe = fensterHoehe, art = OpeningKind.Fenster } });
+            // West (-X) und Ost (+X): je zwei Fenster, eines vor und eines hinter
+            // der Innenwand. Damit hat auch der innere Raum eigene Oeffnungen —
+            // sonst waere der Rueckzug dorthin umsonst sicher.
+            WandBauen("Wand_West", new Vector3(-breite * 0.5f, 0, 0), 90f, tiefe, Seitenfenster());
+            WandBauen("Wand_Ost", new Vector3(breite * 0.5f, 0, 0), 90f, tiefe, Seitenfenster());
 
-            // Ost (+X): Fenster
-            WandBauen("Wand_Ost", new Vector3(breite * 0.5f, 0, 0), 90f, tiefe,
-                new List<Oeffnung> {
-                    new Oeffnung { u = 0, breite = fensterBreite, bruestung = fensterBruestung,
-                                   hoehe = fensterHoehe, art = OpeningKind.Fenster } });
+            // Innenwand: trennt den noerdlichen Streifen ab, mit eigener Tuer.
+            if (innenraumBauen)
+                WandBauen("Wand_Innen", new Vector3(0, 0, tiefe * 0.5f - innenraumTiefe), 0f, breite,
+                    new List<Oeffnung> {
+                        new Oeffnung { u = 0, breite = innenTuerBreite, bruestung = 0,
+                                       hoehe = innenTuerHoehe, art = OpeningKind.Tuer } });
+        }
+
+        // Zwei Fenster, symmetrisch um die Wandmitte.
+        List<Oeffnung> Seitenfenster()
+        {
+            var liste = new List<Oeffnung>();
+            foreach (float u in new[] { -fensterAbstand, fensterAbstand })
+                liste.Add(new Oeffnung { u = u, breite = fensterBreite, bruestung = fensterBruestung,
+                                         hoehe = fensterHoehe, art = OpeningKind.Fenster });
+            return liste;
         }
 
         [ContextMenu("Gehoeft loeschen")]
@@ -132,6 +164,14 @@ namespace Vrithof.Worldbuilding
                 os.kind = o.art;
                 os.width = o.breite;
                 os.height = o.hoehe;
+
+                // Openable gleich mitsetzen, damit "Gehoeft bauen" billig bleibt:
+                // sonst waere jeder Layout-Versuch das Nachverdrahten von Hand.
+                var oa = slot.AddComponent<Openable>();
+                bool istTuer = o.art == OpeningKind.Tuer;
+                oa.grundHP = istTuer ? tuerGrundHP : 0f;
+                oa.maxBretter = istTuer ? tuerMaxBretter : fensterMaxBretter;
+                oa.brettMaterial = brettMaterial;
             }
         }
 

@@ -7,34 +7,40 @@ Pause zurückholt._
 
 **Zuletzt gemacht:**
 
-> M2 fertig: NavMesh gebacken, Zombie (Kapsel + `NavMeshAgent`, Speed 1.8) verfolgt und
-> schlägt zu, Tod lädt die Szene neu. Ausdauer im Zomboid-Stil — Regeneration praktisch
-> nur im Stehen, Ausruhen kostet also Tageszeit.
+> M3 fertig: Öffnungen mit Brettern (nageln, ausbessern, abbauen), Eisen als knappe
+> Ressource, Lärm-System mit drei Stufen (schleichen/gehen/sprinten) plus Hämmern,
+> Zombies folgen Lärm und Sicht statt dem Spieler, Nacht-Zyklus mit Spawner und
+> Horde alle 3 Nächte. Dazu Schleichen, Fenster-Durchsteigen und erzeugte Platzhalter-Sounds.
 
 **Läuft der Build?**
 
-> Ja.
+> Ja. Abwimmeln und Schleichen funktionieren und machen Spaß.
 
 **Als Nächstes dran:**
 
-> M3 / Session 3: `Openable` (Intakt/Verbarrikadiert/Zerstört), Interact-Raycast, Eisen
-> (Start 20, sechs Öffnungen à 5), Lärm-System, Horde in Nacht 3.
-> Auftakt: Zombie-Spawner am Kartenrand — aus M2 bewusst verschoben, weil M3 ihn für
-> zehn Zombies sowieso braucht.
+> M4 / Session 4 ⭐ **der eigentliche POC**: Loot-Container mit Loot-Tabelle (Eisen wird
+> geplündert statt geschenkt), zweites und drittes Gehöft in Laufentfernung, Nahrung tickt.
 
 **Wo der Hund begraben liegt:**
 
-> `TageszeitZyklus` stellt `RenderSettings` global um (Ambient → Flat, eigene Skybox-Instanz)
-> — nur zur Laufzeit, revertet nach Play. Zum Beurteilen **Game-View im Play**, nicht Scene-View.
+> **Die Barrikaden haben keinen Anreiz.** Weglaufen ist billiger als verteidigen — im
+> M3-Test gab es keinen Grund, die Hütte zu halten. Ausführlich in `02-DESIGN.md`
+> Abschnitt 10. Die wichtigste offene Designfrage, wird mit M4 dringend.
 >
-> Der `FirstPersonController` schleift an Wänden: er leitet seine Beschleunigung aus
-> `_controller.velocity` ab (Move(), ~Zeile 166), und die ist an der Wand fast null.
-> Skin Width 0.05 hat es nicht behoben. Fix ist eine Zeile, aber ein Eingriff ins
-> Starter Asset — **bewusst vertagt**, spätestens vor M3 fällig (M3 spielt an Wänden).
+> `TageszeitZyklus` stellt `RenderSettings` global um — nur zur Laufzeit, revertet nach
+> Play. Zum Beurteilen **Game-View im Play**, nicht Scene-View.
 >
-> Agent Radius 0.5 gegen 1.2 m Türloch lässt nur ~0.2 m NavMesh in der Tür. Läuft, ist
-> aber knapp — nach jedem Bake prüfen, ob der Zombie noch reinkommt. Sonst Radius 0.35.
+> Der `FirstPersonController` schleift an Wänden (`_controller.velocity` in Move(), ~Zeile
+> 166). **Wird nicht repariert** — er fliegt später ganz raus, siehe `02-DESIGN.md`
+> Abschnitt 9 (eigener Controller mit Gewicht).
+>
+> Durchsteigen ist ein kontrolliertes Verschieben, kein echtes Klettern. Zombies wandern
+> nicht: ohne Geräusch bleiben sie am letzten stehen. Agent Radius 0.5 gegen 1.2 m
+> Türloch ist knapp — nach jedem Bake prüfen.
+>
+> **Balance ist ungeprüft.** Startvorrat (40 Eisen), Hordenrhythmus (jede 3. Nacht),
+> Barrikaden-HP, Zombie-Tempo (1.8) sind Startwerte, keine Ergebnisse.
 
 ---
 
-**Aktueller Meilenstein:** M3
+**Aktueller Meilenstein:** M4

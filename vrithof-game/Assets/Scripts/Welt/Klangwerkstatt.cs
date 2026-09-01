@@ -1,0 +1,77 @@
+using UnityEngine;
+
+namespace Vrithof.Welt
+{
+    /// Platzhalter-Klaenge, im Code erzeugt. Das Projekt hat keine Audio-Dateien,
+    /// und fuer ein Blockout muss es die auch nicht haben: es geht um Feedback,
+    /// nicht um Klangqualitaet. Dieselbe Logik wie bei den grauen Wuerfeln —
+    /// spaeter werden echte Clips in die Inspector-Slots gezogen, der Code
+    /// bleibt.
+    public static class Klangwerkstatt
+    {
+        const int Rate = 44100;
+
+        /// Dumpfer Aufschlag. Schwer = Sprint, leicht = Gehen.
+        public static AudioClip Schritt(bool schwer)
+        {
+            int n = Rate / 8;                       // 0.125 s
+            var d = new float[n];
+            float glatt = 0f;
+            float traegheit = schwer ? 0.30f : 0.45f;   // je traeger, desto dumpfer
+            float abfall = schwer ? 14f : 22f;
+
+            for (int i = 0; i < n; i++)
+            {
+                float t = i / (float)n;
+                glatt = Mathf.Lerp(glatt, Random.Range(-1f, 1f), traegheit);
+                d[i] = glatt * Mathf.Exp(-t * abfall) * (schwer ? 0.9f : 0.55f);
+            }
+            return Aus(d, schwer ? "SchrittSchwer" : "SchrittLeicht");
+        }
+
+        /// Kurzer harter Schlag mit etwas Ton drin — Hammer auf Nagel.
+        public static AudioClip Hammer()
+        {
+            int n = Rate / 12;                      // 0.083 s
+            var d = new float[n];
+            for (int i = 0; i < n; i++)
+            {
+                float t = i / (float)n;
+                float sek = i / (float)Rate;
+                float ton = Mathf.Sin(2f * Mathf.PI * 850f * sek);
+                d[i] = (Random.Range(-1f, 1f) * 0.45f + ton * 0.55f) * Mathf.Exp(-t * 45f);
+            }
+            return Aus(d, "Hammer");
+        }
+
+        /// Tiefes Stoehnen. Bewusst lang und leise — es soll Richtung verraten,
+        /// nicht erschrecken.
+        public static AudioClip Stoehnen()
+        {
+            int n = Rate * 5 / 4;                   // 1.25 s
+            var d = new float[n];
+            float phase = 0f;
+
+            for (int i = 0; i < n; i++)
+            {
+                float t = i / (float)n;
+                float sek = i / (float)Rate;
+                // Grundton wandert leicht — sonst klingt es wie ein Signalton.
+                float hz = 96f + Mathf.Sin(sek * 5.5f) * 9f;
+                phase += 2f * Mathf.PI * hz / Rate;
+
+                float huelle = Mathf.Sin(Mathf.PI * t);          // sanft rein und raus
+                d[i] = (Mathf.Sin(phase) * 0.7f + Random.Range(-1f, 1f) * 0.3f)
+                       * huelle * 0.5f;
+            }
+            return Aus(d, "Stoehnen");
+        }
+
+        static AudioClip Aus(float[] daten, string name)
+        {
+            var clip = AudioClip.Create(name, daten.Length, 1, Rate, false);
+            clip.SetData(daten, 0);
+            return clip;
+        }
+    }
+}

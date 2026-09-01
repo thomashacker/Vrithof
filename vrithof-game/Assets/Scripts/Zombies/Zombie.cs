@@ -1,15 +1,23 @@
 using UnityEngine;
 using UnityEngine.AI;
 using Vrithof.Spieler;
+using Vrithof.Welt;
+using Vrithof.Worldbuilding;
 
 namespace Vrithof.Zombies
 {
-    /// M2: laeuft stur auf den Spieler zu und schlaegt zu, wenn er nah genug ist.
-    /// Auf eine Kapsel mit NavMeshAgent legen.
+    /// M3: geht dorthin, wo es zuletzt laut war — nicht dorthin, wo der Spieler
+    /// ist. Er weiss nicht, wo du bist. Er weiss nur, was er gehoert hat.
     ///
-    /// Tempo, Beschleunigung und Stoppdistanz stehen im NavMeshAgent selbst,
-    /// nicht hier — sonst gibt es zwei Wahrheiten. Startwert fuer speed: 4.3.
-    /// Der Spieler geht 4 und sprintet 6, also: entkommen nur im Sprint.
+    /// Daraus entsteht das ganze Nacht-Gameplay: Rennen verraet dich, Haemmern
+    /// zieht sie an die Wand, an der du arbeitest, Stillstehen macht dich
+    /// unsichtbar. Und du kannst sie abhaengen, indem du Laerm woanders machst.
+    ///
+    /// Ist der Weg zum Geraeusch versperrt, schlaegt er auf die Oeffnung ein,
+    /// die dem Geraeusch am naechsten liegt. Die Wegfrage beantwortet das
+    /// NavMesh selbst: findet der Agent keinen vollstaendigen Pfad, ist dicht.
+    ///
+    /// Tempo und Stoppdistanz stehen im NavMeshAgent, nicht hier.
     [RequireComponent(typeof(NavMeshAgent))]
     public class Zombie : MonoBehaviour
     {
@@ -27,17 +35,78 @@ namespace Vrithof.Zombies
         public float angriffsReichweite = 1.8f;
         [Tooltip("Sekunden zwischen zwei Schlaegen.")]
         public float angriffsIntervall = 1f;
-        [Tooltip("Schaden pro Schlag. 20 bei 100 Leben = fuenf Treffer.")]
+        [Tooltip("Schaden pro Schlag auf den Spieler. 20 bei 100 Leben = fuenf Treffer.")]
         public float schaden = 20f;
+        [Tooltip("Schaden pro Schlag auf eine Barrikade. Bewusst niedriger: " +
+                 "der Spieler soll gegen einen einzelnen Zombie anreparieren koennen, " +
+                 "gegen mehrere nicht.")]
+        public float schadenAnBarrikade = 10f;
+
+        [Header("Augen")]
+        [Tooltip("Wie weit er sieht. Kurz halten — er soll blind wirken, nicht wachsam.")]
+        public float sichtWeite = 12f;
+        [Tooltip("Oeffnungswinkel des Blickfelds in Grad.")]
+        public float sichtWinkel = 100f;
+        [Tooltip("Er nimmt nur Bewegung wahr. Wer stillsteht, ist fuer ihn nicht da.")]
+        public float bewegungsSchwelle = 0.05f;
+
+        [Header("Klang")]
+        [Tooltip("Leer lassen — dann wird ein Platzhalter erzeugt.")]
+        public AudioClip stoehnKlang;
+        [Range(0f, 1f)] public float lautstaerke = 0.6f;
+        public float stoehnAbstandMin = 3f;
+        public float stoehnAbstandMax = 9f;
+        [Tooltip("Ab dieser Entfernung ist er nicht mehr zu hoeren.")]
+        public float hoerweite = 25f;
+
+        [Header("Gesicht")]
+        [Tooltip("Klotz an der Vorderseite, damit man die Blickrichtung sieht.")]
+        public bool gesichtZeigen = true;
+
+        [Header("Gehoer")]
+        [Tooltip("Umkreis um das Geraeusch, in dem eine Oeffnung noch dazugehoert. " +
+                 "Klein halten — er soll das Haus aufbrechen, aus dem der Laerm kam, " +
+                 "nicht irgendeines in der Naehe.")]
+        public float oeffnungsUmkreis = 12f;
 
         NavMeshAgent agent;
         SpielerLeben opfer;
+        Openable zielOeffnung;
+        Vector3 letztesGeraeusch;
+        bool hatGeraeusch;
+        Vector3 zielVorherigePosition;
+        AudioSource stimme;
+        float naechstesStoehnen;
         float naechsteAktualisierung;
         float naechsterSchlag;
+        NavMeshPath pfad;   // erst in Awake — im Konstruktor verbietet Unity das
 
         void Awake()
         {
             agent = GetComponent<NavMeshAgent>();
+            pfad = new NavMeshPath();
+
+            if (stoehnKlang == null) stoehnKlang = Klangwerkstatt.Stoehnen();
+            stimme = gameObject.AddComponent<AudioSource>();
+            stimme.playOnAwake = false;
+            stimme.spatialBlend = 1f;        // im Raum verortet — man hoert die Richtung
+            stimme.rolloffMode = AudioRolloffMode.Linear;
+            stimme.minDistance = 2f;
+            stimme.maxDistance = hoerweite;
+
+            if (gesichtZeigen) GesichtBauen();
+        }
+
+        // Eine Kapsel hat keine Vorderseite. Ohne Markierung sieht man nicht,
+        // wohin er blickt — und damit auch nicht, ob die Sicht funktioniert.
+        void GesichtBauen()
+        {
+            var nase = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            nase.name = "Blickrichtung";
+            nase.transform.SetParent(transform, false);
+            nase.transform.localPosition = new Vector3(0f, 0.55f, 0.45f);
+            nase.transform.localScale = new Vector3(0.45f, 0.14f, 0.2f);
+            Destroy(nase.GetComponent<Collider>());
         }
 
         void Start()
@@ -48,7 +117,11 @@ namespace Vrithof.Zombies
                 if (spieler != null) ziel = spieler.transform;
                 else Debug.LogWarning("Zombie findet keinen Spieler (Tag 'Player').", this);
             }
-            if (ziel != null) opfer = ziel.GetComponentInParent<SpielerLeben>();
+            if (ziel != null)
+            {
+                opfer = ziel.GetComponentInParent<SpielerLeben>();
+                zielVorherigePosition = ziel.position;
+            }
         }
 
         void Update()
@@ -61,24 +134,149 @@ namespace Vrithof.Zombies
             if (Time.time >= naechsteAktualisierung)
             {
                 naechsteAktualisierung = Time.time + zielIntervall;
-                agent.SetDestination(ziel.position);
+                ZielWaehlen();
             }
 
             Zuschlagen();
+            Stoehnen();
+        }
+
+        /// Von aussen ein Ziel geben — der Spawner setzt damit den Ort, der sie
+        /// ueberhaupt erst hergelockt hat.
+        public void GeraeuschMerken(Vector3 ort)
+        {
+            letztesGeraeusch = ort;
+            hatGeraeusch = true;
+        }
+
+        /// Alles vergessen. Im Morgengrauen bleiben sie stehen, wo sie sind,
+        /// statt weiter auf die Stelle zuzulaufen, an der sie dich nachts
+        /// zuletzt gehoert haben. So gehoert der Tag wieder dir — auch wenn
+        /// sie noch da sind.
+        public void GeraeuschVergessen()
+        {
+            hatGeraeusch = false;
+            zielOeffnung = null;
+            if (agent != null && agent.isOnNavMesh) agent.ResetPath();
+        }
+
+        // Sehen und hoeren speisen dasselbe Gedaechtnis: er weiss immer nur,
+        // wo er zuletzt *etwas* wahrgenommen hat. Kein zweites Zielverhalten.
+        void ZielWaehlen()
+        {
+            if (Laerm.Lautestes(transform.position, out var gehoert))
+                GeraeuschMerken(gehoert);
+
+            if (Sieht()) GeraeuschMerken(ziel.position);
+
+            if (!hatGeraeusch)
+            {
+                zielOeffnung = null;
+                return;   // nichts gehoert, nichts zu tun — er bleibt stehen
+            }
+
+            if (agent.CalculatePath(letztesGeraeusch, pfad)
+                && pfad.status == NavMeshPathStatus.PathComplete)
+            {
+                zielOeffnung = null;
+                agent.SetDestination(letztesGeraeusch);
+                return;
+            }
+
+            zielOeffnung = NaechsteVerschlossene();
+            if (zielOeffnung != null)
+                agent.SetDestination(zielOeffnung.transform.position);
+            else
+                agent.SetDestination(letztesGeraeusch);
+        }
+
+        // Zwei Schritte, und die Reihenfolge ist der Punkt:
+        //
+        //   1. Nur Oeffnungen nahe am Geraeusch — das ist das Haus, aus dem es
+        //      kam. Frueher stand hier der Abstand zum Spieler, und das war ein
+        //      Hack: der Zombie lief zum naechstbesten Gebaeude, egal ob dort
+        //      jemand war. Das Geraeusch sagt ihm jetzt, welches gemeint ist.
+        //   2. Davon die, die er selbst am schnellsten erreicht. So verteilt
+        //      sich eine Horde von allein auf die Oeffnungen einer Huette.
+        // Zombies sehen schlecht: kurze Reichweite, breiter aber stumpfer Blick,
+        // und nur Bewegung. Wer stillsteht, ist fuer sie nicht vorhanden.
+        bool Sieht()
+        {
+            Vector3 hin = ziel.position - transform.position;
+            float weg = (ziel.position - zielVorherigePosition).magnitude;
+            zielVorherigePosition = ziel.position;
+
+            if (weg < bewegungsSchwelle) return false;
+            if (hin.sqrMagnitude > sichtWeite * sichtWeite) return false;
+
+            hin.y = 0f;
+            if (Vector3.Angle(transform.forward, hin) > sichtWinkel * 0.5f) return false;
+
+            // Sichtlinie: Waende und Bretter verdecken. Etwas ueber dem Boden
+            // messen, sonst blockiert der Untergrund selbst.
+            Vector3 auge = transform.position + Vector3.up * 1.2f;
+            Vector3 kopf = ziel.position + Vector3.up * 1.2f;
+            if (Physics.Linecast(auge, kopf, out var sperre, ~0, QueryTriggerInteraction.Ignore)
+                && sperre.collider.GetComponentInParent<SpielerLeben>() == null)
+                return false;
+
+            return true;
+        }
+
+        void Stoehnen()
+        {
+            if (Time.time < naechstesStoehnen)
+                return;
+            naechstesStoehnen = Time.time + Random.Range(stoehnAbstandMin, stoehnAbstandMax);
+            if (stimme == null || stoehnKlang == null) return;
+            stimme.pitch = Random.Range(0.8f, 1.15f);
+            stimme.PlayOneShot(stoehnKlang, lautstaerke);
+        }
+
+        Openable NaechsteVerschlossene()
+        {
+            Openable beste = null;
+            float kuerzeste = float.MaxValue;
+            float umkreis = oeffnungsUmkreis * oeffnungsUmkreis;
+
+            foreach (var o in Openable.Alle)
+            {
+                if (o == null || o.IstOffen) continue;
+                if ((o.transform.position - letztesGeraeusch).sqrMagnitude > umkreis) continue;
+
+                float d = (o.transform.position - transform.position).sqrMagnitude;
+                if (d >= kuerzeste) continue;
+                kuerzeste = d;
+                beste = o;
+            }
+
+            return beste;
         }
 
         void Zuschlagen()
         {
-            if (opfer == null || Time.time < naechsterSchlag) return;
+            if (Time.time < naechsterSchlag) return;
 
-            // Flach messen: die Pivots von Spieler und Kapsel liegen auf
-            // unterschiedlicher Hoehe, das soll die Reichweite nicht verfaelschen.
-            Vector3 d = ziel.position - transform.position;
-            d.y = 0f;
-            if (d.sqrMagnitude > angriffsReichweite * angriffsReichweite) return;
+            if (zielOeffnung != null)
+            {
+                if (!InReichweite(zielOeffnung.transform.position)) return;
+                naechsterSchlag = Time.time + angriffsIntervall;
+                zielOeffnung.Schaden(schadenAnBarrikade);
+                return;
+            }
 
+            if (opfer == null || !InReichweite(ziel.position)) return;
             naechsterSchlag = Time.time + angriffsIntervall;
             opfer.Schaden(schaden);
+        }
+
+        // Flach messen: die Pivots liegen auf unterschiedlicher Hoehe, das soll
+        // die Reichweite nicht verfaelschen.
+        bool InReichweite(Vector3 punkt)
+        {
+            Vector3 d = punkt - transform.position;
+            d.y = 0f;
+            return d.sqrMagnitude <= angriffsReichweite * angriffsReichweite;
         }
     }
 }
