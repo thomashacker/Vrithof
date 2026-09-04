@@ -10,8 +10,10 @@ namespace Vrithof.Zeit
     public class TageszeitZyklus : MonoBehaviour
     {
         [Header("Zeit")]
-        [Tooltip("Sekunden fuer einen vollen 24h-Zyklus.")]
-        public float tagLaengeSekunden = 120f;
+        [Tooltip("Minuten fuer einen vollen 24h-Zyklus. Sobald es Entfernungen " +
+                 "gibt, muss hier Luft sein: bei 6 Minuten dauert der helle Teil " +
+                 "des Tages rund dreieinhalb Minuten.")]
+        public float tagLaengeMinuten = 6f;
         [Range(0f, 24f)]
         [Tooltip("Uhrzeit beim Start.")]
         public float startStunde = 6f;
@@ -76,7 +78,7 @@ namespace Vrithof.Zeit
 
         void Update()
         {
-            float stundenProSekunde = 24f / Mathf.Max(1f, tagLaengeSekunden);
+            float stundenProSekunde = 24f / (Mathf.Max(0.1f, tagLaengeMinuten) * 60f);
             stunde += stundenProSekunde * Time.deltaTime;
             while (stunde >= 24f) { stunde -= 24f; tag++; }
             Anwenden();

@@ -47,6 +47,7 @@ namespace Vrithof.Spieler
 
         StarterAssetsInputs eingabe;
         Schleichen geduckt;
+        Ausdauer kraft;
         AudioSource quelle;
         float naechsterSchritt;
         bool warInDerLuft;
@@ -59,6 +60,7 @@ namespace Vrithof.Spieler
         {
             eingabe = GetComponent<StarterAssetsInputs>();
             geduckt = GetComponent<Schleichen>();
+            kraft = GetComponent<Ausdauer>();
             quelle = GetComponent<AudioSource>();
             if (quelle == null) quelle = gameObject.AddComponent<AudioSource>();
             quelle.playOnAwake = false;
@@ -100,7 +102,11 @@ namespace Vrithof.Spieler
             }
 
             bool schleicht = geduckt != null && geduckt.IstGeduckt;
-            bool rennt = eingabe.sprint && !schleicht;
+            // Nicht die Taste zaehlt, sondern ob wirklich gerannt wird. Wer
+            // erschoepft ist, laeuft im Gehtempo und darf sich nicht durch
+            // Sprintlaerm verraten, den er gar nicht verursacht.
+            bool erschoepft = kraft != null && kraft.Erschoepft;
+            bool rennt = eingabe.sprint && !schleicht && !erschoepft;
             if (Time.time < naechsterSchritt) return;
 
             float takt = rennt ? schrittSprint : schleicht ? schrittSchleichen : schrittGehen;

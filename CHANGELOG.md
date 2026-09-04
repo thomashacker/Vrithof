@@ -5,6 +5,11 @@ Nur was im Spiel gelandet ist.
 
 ---
 
+## 2026-09-04 — M4: Der Loop schließt sich ⭐
+- Eisen, Nahrung und Fackeln werden aus Truhen geplündert statt geschenkt; drei Gehöfte als Prefabs verteilt
+- Nahrung tickt an der Spielzeit und treibt nach draußen; Fackel mit Brenndauer macht sichtbar, aber auch sichtbarer
+- Zombies wandern von Gehöft zu Gehöft, wenn sie nichts hören; Sprung und Klettern kosten Ausdauer
+
 ## 2026-09-02 — M3: Die Nacht funktioniert
 - Öffnungen verbarrikadierbar: Bretter nageln, ausbessern, abbauen — Eisen ist knapp
 - Lärm- und Sichtsystem: Zombies folgen Geräuschen statt dem Spieler, Schleichen und Abwimmeln funktionieren

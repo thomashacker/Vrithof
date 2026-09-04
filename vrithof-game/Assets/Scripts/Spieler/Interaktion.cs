@@ -59,8 +59,14 @@ namespace Vrithof.Spieler
         public bool diagnose = true;
 
         EisenVorrat vorrat;
+        NahrungsVorrat magen;
+        Fackel fackel;
+        Ausdauer kraft;
         Camera blick;
         Openable imVisier;
+        LootBehaelter truheImVisier;
+        string beuteText = "";
+        float beuteBis;
         float fortschritt;
         string letzterTreffer = "-";
         float naechsterSchlag;
@@ -73,6 +79,9 @@ namespace Vrithof.Spieler
         {
             vorrat = GetComponent<EisenVorrat>();
             laerm = GetComponent<SpielerLaerm>();
+            magen = GetComponent<NahrungsVorrat>();
+            fackel = GetComponent<Fackel>();
+            kraft = GetComponent<Ausdauer>();
             koerper = GetComponent<CharacterController>();
             quelle = GetComponent<AudioSource>();
             if (quelle == null) quelle = gameObject.AddComponent<AudioSource>();
@@ -86,17 +95,20 @@ namespace Vrithof.Spieler
             if (blick == null) blick = Camera.main;
             if (blick == null || steigtGerade) return;
 
-            var vorher = imVisier;
-            imVisier = Anvisiert();
+            var vorherOeffnung = imVisier;
+            var vorherTruhe = truheImVisier;
+            Anvisieren();
 
-            if (imVisier != vorher)
+            if (imVisier != vorherOeffnung)
             {
-                if (vorher) vorher.Hervorheben(false);
+                if (vorherOeffnung) vorherOeffnung.Hervorheben(false);
                 if (imVisier) imVisier.Hervorheben(true);
                 fortschritt = 0f;   // Ziel gewechselt -> von vorn
             }
+            if (truheImVisier != vorherTruhe) fortschritt = 0f;
 
-            Haemmern();
+            if (truheImVisier != null) Durchsuchen();
+            else Haemmern();
 
             if (imVisier != null && KannDurchsteigen(imVisier)
                 && Keyboard.current != null && Keyboard.current.fKey.wasPressedThisFrame)
@@ -104,10 +116,12 @@ namespace Vrithof.Spieler
         }
 
         // Nur durch offene Oeffnungen — Bretter versperren den Weg genauso wie
-        // ein heiles Tuerblatt.
+        // ein heiles Tuerblatt. Und nur mit Kraft in den Armen: erschoepft
+        // kommt man nicht mehr durchs Fenster, sondern muss zur Tuer.
         bool KannDurchsteigen(Openable o)
         {
             if (!o.IstOffen) return false;
+            if (kraft != null && !kraft.Reicht(kraft.kletterKosten)) return false;
             Vector3 d = o.transform.position - transform.position;
             d.y = 0f;
             return d.sqrMagnitude <= steigReichweite * steigReichweite;
@@ -119,6 +133,7 @@ namespace Vrithof.Spieler
         System.Collections.IEnumerator Durchsteigen(Openable o)
         {
             steigtGerade = true;
+            if (kraft != null) kraft.Verbrauchen(kraft.kletterKosten);
             if (laerm != null) laerm.Melden(steigLaerm, null);
 
             // Auf die Seite, die vom Spieler weg zeigt.
@@ -209,21 +224,62 @@ namespace Vrithof.Spieler
             return o.BrauchtArbeit && vorrat != null && vorrat.Reicht(o.NaechsteKosten);
         }
 
-        Openable Anvisiert()
+        void Anvisieren()
         {
+            imVisier = null;
+            truheImVisier = null;
+
             var strahl = new Ray(blick.transform.position, blick.transform.forward);
             if (!Physics.Raycast(strahl, out var treffer, reichweite,
                                  ~0, QueryTriggerInteraction.Collide))
             {
                 letzterTreffer = "nichts in Reichweite";
-                return null;
+                return;
             }
 
             // Trifft der Strahl ein Brett, sitzt das Openable am Elternobjekt.
-            var o = treffer.collider.GetComponentInParent<Openable>();
-            letzterTreffer = $"{treffer.collider.name} ({treffer.distance:0.0} m)" +
-                             (o == null ? " — kein Openable" : " — Openable!");
-            return o;
+            imVisier = treffer.collider.GetComponentInParent<Openable>();
+            truheImVisier = treffer.collider.GetComponentInParent<LootBehaelter>();
+
+            string was = imVisier != null ? " — Openable"
+                       : truheImVisier != null ? " — Truhe"
+                       : "";
+            letzterTreffer = $"{treffer.collider.name} ({treffer.distance:0.0} m){was}";
+        }
+
+        // Wuehlen ist derselbe Handgriff wie Haemmern: halten, warten, gebunden
+        // sein. Nur dass hier etwas herauskommt statt hineingeht.
+        void Durchsuchen()
+        {
+            if (truheImVisier.Gepluendert
+                || Keyboard.current == null || !Keyboard.current.eKey.isPressed)
+            {
+                fortschritt = 0f;
+                return;
+            }
+
+            if (laerm != null && Time.time >= naechsterSchlag)
+            {
+                naechsterSchlag = Time.time + schlagIntervall;
+                laerm.Melden(truheImVisier.suchLaerm, null);
+            }
+
+            fortschritt += Time.deltaTime;
+            if (fortschritt < truheImVisier.suchZeit) return;
+
+            fortschritt = 0f;
+            truheImVisier.Ausraeumen(out int eisenBeute, out int nahrungBeute,
+                                     out int fackelBeute);
+
+            if (vorrat != null) vorrat.eisen += eisenBeute;
+            if (magen != null) magen.Essen(nahrungBeute);
+            if (fackel != null) fackel.vorrat += fackelBeute;
+
+            beuteText = eisenBeute == 0 && nahrungBeute == 0 && fackelBeute == 0
+                ? "nichts drin"
+                : $"+{eisenBeute} Eisen   +{nahrungBeute} Nahrung" +
+                  (fackelBeute > 0 ? $"   +{fackelBeute} Fackel" : "");
+            beuteBis = Time.time + 2.5f;
         }
 
         void OnDisable()
@@ -253,6 +309,25 @@ namespace Vrithof.Spieler
             punkt.normal.textColor = new Color(1f, 1f, 1f, 0.6f);
             GUI.Label(new Rect(mx - 5, my - 12, 20, 24), "+", punkt);
 
+            if (Time.time < beuteBis)
+            {
+                var b = new GUIStyle(GUI.skin.label)
+                { fontSize = 18, alignment = TextAnchor.MiddleCenter };
+                b.normal.textColor = new Color(1f, 0.9f, 0.5f);
+                GUI.Label(new Rect(mx - 200, my - 60, 400, 24), beuteText, b);
+            }
+
+            if (truheImVisier != null)
+            {
+                var t = new GUIStyle(GUI.skin.label)
+                { fontSize = 16, alignment = TextAnchor.MiddleCenter };
+                t.normal.textColor = Color.white;
+                GUI.Label(new Rect(mx - 200, my + 20, 400, 24),
+                          truheImVisier.Gepluendert ? "durchsucht" : "[E] halten — durchsuchen", t);
+                Fortschrittsbalken(mx, my, truheImVisier.suchZeit);
+                return;
+            }
+
             if (imVisier == null) return;
 
             string text;
@@ -267,8 +342,8 @@ namespace Vrithof.Spieler
 
             if (imVisier.KannAbbauen)
                 text += $"     [Q] halten — Brett ab (+{imVisier.eisenZurueck})";
-            if (KannDurchsteigen(imVisier))
-                text = "[F] durchsteigen";
+            if (imVisier.IstOffen)
+                text = KannDurchsteigen(imVisier) ? "[F] durchsteigen" : "zu erschoepft";
 
             var hinweis = new GUIStyle(GUI.skin.label)
             {
@@ -278,15 +353,19 @@ namespace Vrithof.Spieler
             hinweis.normal.textColor = Color.white;
             GUI.Label(new Rect(mx - 200, my + 20, 400, 24), text, hinweis);
 
+            Fortschrittsbalken(mx, my, bauZeit);
+        }
+
+        void Fortschrittsbalken(float mx, float my, float dauer)
+        {
             if (fortschritt <= 0f) return;
 
-            // Fortschrittsbalken direkt unter dem Fadenkreuz.
             var balken = new Rect(mx - 60, my + 46, 120, 6);
             var alt = GUI.color;
             GUI.color = new Color(0f, 0f, 0f, 0.5f);
             GUI.DrawTexture(balken, Texture2D.whiteTexture);
             GUI.color = new Color(1f, 0.85f, 0.3f);
-            balken.width *= Mathf.Clamp01(fortschritt / bauZeit);
+            balken.width *= Mathf.Clamp01(fortschritt / Mathf.Max(0.05f, dauer));
             GUI.DrawTexture(balken, Texture2D.whiteTexture);
             GUI.color = alt;
         }

@@ -7,40 +7,49 @@ Pause zurückholt._
 
 **Zuletzt gemacht:**
 
-> M3 fertig: Öffnungen mit Brettern (nageln, ausbessern, abbauen), Eisen als knappe
-> Ressource, Lärm-System mit drei Stufen (schleichen/gehen/sprinten) plus Hämmern,
-> Zombies folgen Lärm und Sicht statt dem Spieler, Nacht-Zyklus mit Spawner und
-> Horde alle 3 Nächte. Dazu Schleichen, Fenster-Durchsteigen und erzeugte Platzhalter-Sounds.
+> M4 fertig ⭐ **der POC steht.** Eisen wird aus Truhen geplündert statt geschenkt,
+> drei Gehöfte als Prefabs verteilt, Nahrung tickt an der Spielzeit. Dazu Fackel mit
+> Brenndauer (macht dich sichtbarer), wandernde Zombies (ziehen von Gehöft zu Gehöft),
+> Ausdauer für Sprung und Klettern. Tageslänge jetzt in Minuten.
 
 **Läuft der Build?**
 
-> Ja. Abwimmeln und Schleichen funktionieren und machen Spaß.
+> Ja. Deutlich lebendiger als M3 — Plündern, Nahrung und wandernde Zombies tragen den Loop.
 
 **Als Nächstes dran:**
 
-> M4 / Session 4 ⭐ **der eigentliche POC**: Loot-Container mit Loot-Tabelle (Eisen wird
-> geplündert statt geschenkt), zweites und drittes Gehöft in Laufentfernung, Nahrung tickt.
+> Zwei Wege, beide legitim:
+> **Session 5 — spielen und drehen.** Nichts bauen. Zahlen: Tageslänge, Loot-Menge,
+> Nahrungsverbrauch, Entfernungen, Hordenrhythmus.
+> **Oder die Werkzeug-Idee** aus `02-DESIGN.md` Abschnitt 9 — Eisen braucht eine zweite
+> Senke, weil die Barrikaden als einzige nicht tragen.
 
 **Wo der Hund begraben liegt:**
 
-> **Die Barrikaden haben keinen Anreiz.** Weglaufen ist billiger als verteidigen — im
-> M3-Test gab es keinen Grund, die Hütte zu halten. Ausführlich in `02-DESIGN.md`
-> Abschnitt 10. Die wichtigste offene Designfrage, wird mit M4 dringend.
+> **Verbarrikadieren macht keinen Spaß, und das ist nach M4 klarer geworden:** Der Loop
+> trägt auch ohne. Das Problem ist nicht die Nacht, sondern dass **Eisen nur eine Senke
+> hat**. Zwei Vorschläge in `02-DESIGN.md` Abschnitt 9 (Gehöfte aufbrechen, Axt aus Eisen),
+> Befund in Abschnitt 10.
 >
-> `TageszeitZyklus` stellt `RenderSettings` global um — nur zur Laufzeit, revertet nach
-> Play. Zum Beurteilen **Game-View im Play**, nicht Scene-View.
+> **Offen aus dem M4-Test:** Schaust du beim Plündern auf die Uhr? Das ist das
+> Fertig-Kriterium des POC und noch unbeantwortet.
 >
-> Der `FirstPersonController` schleift an Wänden (`_controller.velocity` in Move(), ~Zeile
-> 166). **Wird nicht repariert** — er fliegt später ganz raus, siehe `02-DESIGN.md`
-> Abschnitt 9 (eigener Controller mit Gewicht).
+> `TageszeitZyklus` stellt `RenderSettings` global um — Game-View im Play beurteilen.
+> Feld heißt jetzt `tagLaengeMinuten`, alter Sekundenwert ging beim Umbenennen verloren.
 >
-> Durchsteigen ist ein kontrolliertes Verschieben, kein echtes Klettern. Zombies wandern
-> nicht: ohne Geräusch bleiben sie am letzten stehen. Agent Radius 0.5 gegen 1.2 m
-> Türloch ist knapp — nach jedem Bake prüfen.
+> Der `FirstPersonController` schleift an Wänden. **Wird nicht repariert** — eigener
+> Controller mit Gewicht kommt später, siehe `02-DESIGN.md` Abschnitt 9.
 >
-> **Balance ist ungeprüft.** Startvorrat (40 Eisen), Hordenrhythmus (jede 3. Nacht),
-> Barrikaden-HP, Zombie-Tempo (1.8) sind Startwerte, keine Ergebnisse.
+> Ausdauer blockiert den Sprung, indem sie die Taste löscht. Bei ungünstiger
+> Skript-Reihenfolge kann ein einzelner Sprung durchrutschen — bewusst in Kauf genommen,
+> um das Starter Asset nicht zu forken.
+>
+> Durchsteigen ist ein kontrolliertes Verschieben, kein echtes Klettern.
+> `Assets/_Recovery/` ist ein Unity-Absturz-Artefakt, nicht eingecheckt — prüfen und löschen.
+>
+> **Balance ist ungeprüft.** Tageslänge (6 min), Loot-Mengen, Nahrungsverbrauch (3.5/h),
+> Fackel-Brenndauer (6 h), Zombie-Tempo (1.8) sind Startwerte, keine Ergebnisse.
 
 ---
 
-**Aktueller Meilenstein:** M4
+**Aktueller Meilenstein:** Session 5 (spielen und drehen) — danach M3.5 oder M5

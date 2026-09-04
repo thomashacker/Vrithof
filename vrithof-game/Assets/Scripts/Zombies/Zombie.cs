@@ -63,6 +63,22 @@ namespace Vrithof.Zombies
         [Tooltip("Klotz an der Vorderseite, damit man die Blickrichtung sieht.")]
         public bool gesichtZeigen = true;
 
+        [Header("Wandern")]
+        [Tooltip("Ohne Geraeusch ziehen sie umher statt reglos zu warten. " +
+                 "Damit ist auch der Tag nie ganz sicher.")]
+        public bool wandern = true;
+        [Tooltip("Tempo beim Wandern, als Anteil des normalen. Ziellos schlurfen " +
+                 "sie langsamer.")]
+        public float wanderTempo = 0.55f;
+        [Tooltip("Umkreis fuer Zufallsziele, wenn gerade kein Gebaeude gewaehlt wird.")]
+        public float wanderRadius = 25f;
+        [Tooltip("Wie oft sie ein Gebaeude ansteuern statt irgendwohin zu laufen. " +
+                 "So ziehen sie von Gehoeft zu Gehoeft statt im Kreis.")]
+        [Range(0f, 1f)]
+        public float gehoeftChance = 0.4f;
+        public float pauseMin = 2f;
+        public float pauseMax = 8f;
+
         [Header("Gehoer")]
         [Tooltip("Umkreis um das Geraeusch, in dem eine Oeffnung noch dazugehoert. " +
                  "Klein halten — er soll das Haus aufbrechen, aus dem der Laerm kam, " +
@@ -71,9 +87,12 @@ namespace Vrithof.Zombies
 
         NavMeshAgent agent;
         SpielerLeben opfer;
+        Fackel fackel;
         Openable zielOeffnung;
         Vector3 letztesGeraeusch;
         bool hatGeraeusch;
+        float normalTempo;
+        float wanderWeiterAb;
         Vector3 zielVorherigePosition;
         AudioSource stimme;
         float naechstesStoehnen;
@@ -85,6 +104,7 @@ namespace Vrithof.Zombies
         {
             agent = GetComponent<NavMeshAgent>();
             pfad = new NavMeshPath();
+            normalTempo = agent.speed;
 
             if (stoehnKlang == null) stoehnKlang = Klangwerkstatt.Stoehnen();
             stimme = gameObject.AddComponent<AudioSource>();
@@ -120,6 +140,7 @@ namespace Vrithof.Zombies
             if (ziel != null)
             {
                 opfer = ziel.GetComponentInParent<SpielerLeben>();
+                fackel = ziel.GetComponentInParent<Fackel>();
                 zielVorherigePosition = ziel.position;
             }
         }
@@ -172,8 +193,11 @@ namespace Vrithof.Zombies
             if (!hatGeraeusch)
             {
                 zielOeffnung = null;
-                return;   // nichts gehoert, nichts zu tun — er bleibt stehen
+                if (wandern) Wandern();
+                return;
             }
+
+            agent.speed = normalTempo;   // etwas gehoert — nicht mehr schlurfen
 
             if (agent.CalculatePath(letztesGeraeusch, pfad)
                 && pfad.status == NavMeshPathStatus.PathComplete)
@@ -198,6 +222,45 @@ namespace Vrithof.Zombies
         //      jemand war. Das Geraeusch sagt ihm jetzt, welches gemeint ist.
         //   2. Davon die, die er selbst am schnellsten erreicht. So verteilt
         //      sich eine Horde von allein auf die Oeffnungen einer Huette.
+        // Ohne Geraeusch ziehen sie umher. Meist irgendwohin, manchmal gezielt
+        // zu einem Gebaeude — die Oeffnungen im Register markieren ja genau die.
+        // Dadurch wandern sie ueber die Zeit von Gehoeft zu Gehoeft, ohne dass
+        // jemand Routen anlegen muesste.
+        void Wandern()
+        {
+            agent.speed = normalTempo * wanderTempo;
+
+            bool unterwegs = agent.hasPath && !agent.pathPending
+                             && agent.remainingDistance > agent.stoppingDistance + 0.5f;
+            if (unterwegs)
+            {
+                // Solange er laeuft, die Rast nach vorn schieben: sie beginnt
+                // erst in dem Moment, in dem er ankommt.
+                wanderWeiterAb = Time.time + Random.Range(pauseMin, pauseMax);
+                return;
+            }
+
+            if (Time.time < wanderWeiterAb) return;
+
+            Vector3 wunsch = WanderZiel();
+            if (NavMesh.SamplePosition(wunsch, out var treffer, 8f, NavMesh.AllAreas))
+                agent.SetDestination(treffer.position);
+            else
+                wanderWeiterAb = Time.time + 1f;   // nichts gefunden, gleich nochmal
+        }
+
+        Vector3 WanderZiel()
+        {
+            if (Random.value < gehoeftChance && Openable.Alle.Count > 0)
+            {
+                var o = Openable.Alle[Random.Range(0, Openable.Alle.Count)];
+                if (o != null) return o.transform.position;
+            }
+
+            Vector2 r = Random.insideUnitCircle * wanderRadius;
+            return transform.position + new Vector3(r.x, 0f, r.y);
+        }
+
         // Zombies sehen schlecht: kurze Reichweite, breiter aber stumpfer Blick,
         // und nur Bewegung. Wer stillsteht, ist fuer sie nicht vorhanden.
         bool Sieht()
@@ -207,7 +270,11 @@ namespace Vrithof.Zombies
             zielVorherigePosition = ziel.position;
 
             if (weg < bewegungsSchwelle) return false;
-            if (hin.sqrMagnitude > sichtWeite * sichtWeite) return false;
+
+            // Wer eine Fackel traegt, ist weiter zu sehen. Das ist der Preis
+            // fuers Sehen — und der Grund, sie manchmal auszumachen.
+            float weite = sichtWeite * (fackel != null ? fackel.SichtFaktor : 1f);
+            if (hin.sqrMagnitude > weite * weite) return false;
 
             hin.y = 0f;
             if (Vector3.Angle(transform.forward, hin) > sichtWinkel * 0.5f) return false;

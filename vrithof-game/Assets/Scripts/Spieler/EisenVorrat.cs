@@ -4,16 +4,16 @@ namespace Vrithof.Spieler
 {
     /// M3: das Eisen. Eine Zahl, mehr braucht es nicht.
     ///
-    /// In M3 wird es geschenkt — der Startwert ist alles, was du je haben wirst.
-    /// Ab M4 kommt es aus Loot-Containern. Die Regel dahinter steht im Design:
-    /// eine Ressource, die reicht, ist keine Ressource. Wenn du beim Testen
-    /// merkst, dass alle Oeffnungen zu sichern sind, ist der Startwert falsch.
+    /// Ab M4 wird es nicht mehr geschenkt, sondern aus Truhen gepluendert.
+    /// Die Regel dahinter steht im Design: eine Ressource, die reicht, ist
+    /// keine Ressource. Wenn du beim Testen merkst, dass alle Oeffnungen zu
+    /// sichern sind, liegt zu viel in den Truhen.
     ///
     /// Auf den Player legen.
     public class EisenVorrat : MonoBehaviour
     {
-        [Tooltip("Vier Fenster voll zu sichern kostet 48. Absichtlich weniger.")]
-        public int eisen = 40;
+        [Tooltip("Startvorrat. Ab M4 bei 0 — alles, was du hast, hast du gefunden.")]
+        public int eisen = 0;
 
         public bool anzeigen = true;
 

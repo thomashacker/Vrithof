@@ -20,6 +20,8 @@ GameObject:
   - component: {fileID: 1480821725181139882}
   - component: {fileID: 8549450987978562466}
   - component: {fileID: 3765503421044766849}
+  - component: {fileID: 529950229767350785}
+  - component: {fileID: 1982602336103481695}
   m_Layer: 8
   m_Name: Player
   m_TagString: Player
@@ -276,7 +278,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e09c1eaf7c0e9f6499e6c78ae71f0350, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Vrithof.Spieler.EisenVorrat
-  eisen: 40
+  eisen: 0
   anzeigen: 1
 --- !u!114 &1480821725181139882
 MonoBehaviour:
@@ -343,6 +345,45 @@ MonoBehaviour:
   duckHoehe: 1.2
   duckTempo: 1.6
   uebergang: 9
+--- !u!114 &529950229767350785
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 863333754217204002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 083b45a6f9d85514aa79271ae73e8a81, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Vrithof.Spieler.NahrungsVorrat
+  maxNahrung: 100
+  startNahrung: 70
+  verbrauchProStunde: 3.5
+  einheitenWert: 20
+  hungerSchwelle: 0
+  hungerSchaden: 2
+  anzeigen: 1
+--- !u!114 &1982602336103481695
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 863333754217204002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d0908c9924de1c41b8ec205db3eab56, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Vrithof.Spieler.Fackel
+  vorrat: 1
+  brenndauerStunden: 6
+  flammenFarbe: {r: 1, g: 0.72, b: 0.36, a: 1}
+  reichweite: 12
+  staerke: 3.5
+  flackern: 0.35
+  sichtFaktor: 2
+  anzeigen: 1
 --- !u!1 &1148076288544165665
 GameObject:
   m_ObjectHideFlags: 0
