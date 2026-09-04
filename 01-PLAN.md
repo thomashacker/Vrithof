@@ -80,10 +80,26 @@ noch ein Haus, bevor es dunkel wird? Was ich nachts verheize, fehlt mir morgen.
 > **Das ist der POC.** Ab hier weißt du, ob der Loop trägt.
 
 ### M5 — Es fühlt sich gut an
-Nahkampf mit Ausdauer und Verletzung. Fackeln und echte Dunkelheit. Zombies mit
-Mixamo-Rig statt Kapseln, plus IK-Layer (Blick folgt dir, Arme greifen nach dir).
-Grab-Mechanik: Zombie hält dich fest, du musst dich befreien. Geräusche ziehen Zombies an.
+Zwei Hälften, die erste ist die wichtigere.
 
+**5a — Eisen bekommt Sinn.** Aus M4 gelernt: Der Loop trägt, aber Eisen hat nur eine
+Senke, und die macht keinen Spaß. Zwei Änderungen beheben das gemeinsam:
+
+- **Fremde Gehöfte starten verbarrikadiert.** Beute kostet damit Zeit und Lärm statt
+  nichts. Barrikaden werden vom Pflichtprogramm zum Werkzeug.
+- **Axt aus Eisen.** Bricht schnell auf, wo bloße Hände lange brauchen. Wird stumpf,
+  kostet Eisen zur Reparatur. Damit schließt sich der Kreis: Eisen verschafft Zugang
+  zu Beute, Beute bringt Eisen. **Ohne Werkbank, ohne Rezeptbaum** — beides bleibt auf
+  der Nein-Liste.
+
+**5b — Es fühlt sich gut an.** Nahkampf mit Ausdauer und Verletzung (die Axt taugt
+dafür ohnehin). Zombies mit Mixamo-Rig statt Kapseln, plus IK-Layer (Blick folgt dir,
+Arme greifen nach dir). Grab-Mechanik: Zombie hält dich fest, du musst dich befreien.
+
+*Fackeln und "Geräusche ziehen Zombies an" standen ursprünglich hier — beides ist in
+M3 und M4 schon entstanden.*
+
+> **Fertig, wenn:** du losziehst, um Eisen für die Axt zu holen.
 > **Fertig, wenn:** dir ein Zombie im Dunkeln einen Schreck einjagt.
 
 ### GATE — die ehrliche Frage
@@ -142,7 +158,7 @@ Jetzt weißt du aus dem Blockout, was das Gehöft können muss. Modulares Kit:
 Die Unity-Würfel werden gegen die Modelle getauscht. Bei sauberer Prefab-Struktur: ein
 Nachmittag.
 
-### Session 9+ — M5, dann das GATE
+### Session 9+ — M5 (erst 5a, dann 5b), dann das GATE
 
 ---
 

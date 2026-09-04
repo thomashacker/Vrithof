@@ -18,18 +18,15 @@ Pause zurückholt._
 
 **Als Nächstes dran:**
 
-> Zwei Wege, beide legitim:
-> **Session 5 — spielen und drehen.** Nichts bauen. Zahlen: Tageslänge, Loot-Menge,
-> Nahrungsverbrauch, Entfernungen, Hordenrhythmus.
-> **Oder die Werkzeug-Idee** aus `02-DESIGN.md` Abschnitt 9 — Eisen braucht eine zweite
-> Senke, weil die Barrikaden als einzige nicht tragen.
+> **M5a — Eisen bekommt Sinn.** Fremde Gehöfte starten verbarrikadiert (Beute kostet
+> Zeit und Lärm), Axt aus Eisen bricht schnell auf und wird stumpf. Details in `01-PLAN.md`.
+> Danach M5b (Nahkampf, Mixamo-Rig, IK, Grab).
 
 **Wo der Hund begraben liegt:**
 
 > **Verbarrikadieren macht keinen Spaß, und das ist nach M4 klarer geworden:** Der Loop
 > trägt auch ohne. Das Problem ist nicht die Nacht, sondern dass **Eisen nur eine Senke
-> hat**. Zwei Vorschläge in `02-DESIGN.md` Abschnitt 9 (Gehöfte aufbrechen, Axt aus Eisen),
-> Befund in Abschnitt 10.
+> hat**. Daraus ist M5a geworden; Befund in `02-DESIGN.md` Abschnitt 10.
 >
 > **Offen aus dem M4-Test:** Schaust du beim Plündern auf die Uhr? Das ist das
 > Fertig-Kriterium des POC und noch unbeantwortet.
@@ -52,4 +49,4 @@ Pause zurückholt._
 
 ---
 
-**Aktueller Meilenstein:** Session 5 (spielen und drehen) — danach M3.5 oder M5
+**Aktueller Meilenstein:** M5a

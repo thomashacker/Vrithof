@@ -329,18 +329,6 @@ ein monatelanges Tuning-Loch.
   Das ist "je besser vorbereitet, desto weiter komme ich" als konkrete Mechanik.
 - **Karte als findbares Item**, unvollständig. Gegenmittel gegen den
   Übersichtsverlust in First Person.
-- **Gehöfte müssen aufgebrochen werden.** Aktuell steht jedes Haus offen —
-  hinein, plündern, hinaus, ohne Preis. Wenn fremde Gehöfte verbarrikadiert
-  starten, kostet Beute **Zeit und Lärm**, und die Barrikaden-Mechanik dreht
-  sich vom lästigen Pflichtprogramm zum Werkzeug. Technisch fast geschenkt:
-  `Openable.startBretter` gibt es, Abbauen mit Q auch.
-- **Eisen als Werkzeug, nicht nur als Barrikade.** Eine Axt aus Eisen, die
-  stumpf wird und Eisen zur Reparatur braucht. Sie bricht Barrikaden schnell
-  auf, wo bloße Hände lange brauchen — und taugt später zur Verteidigung. Damit
-  bekommt Eisen die zweite Senke, die es braucht, und der Kreis schließt sich:
-  Eisen verschafft Zugang zu Beute, Beute bringt Eisen. **Ohne Werkbank und
-  ohne Rezeptbaum** — beides steht in Abschnitt 4 auf der Nein-Liste, und die
-  Idee funktioniert auch ohne.
 - **Werkzeug-Haltbarkeit.** Klingen stumpfen ab, Wetzstein, Eisen als Reparaturkosten.
 - **Eigener Player-Controller mit Gewicht.** Der Starter-Asset-Controller wird ersetzt.
   Ziel ist Trägheit statt Reaktionsfreude: Beschleunigung und Abbremsen brauchen Zeit,
@@ -383,8 +371,8 @@ ein monatelanges Tuning-Loch.
   Nahrung und wandernde Zombies erzeugen die Entscheidungen von allein. Damit
   ist die eigentliche Frage nicht mehr "wie mache ich Barrikaden attraktiv",
   sondern: **Eisen hat nur eine Senke, und die macht keinen Spaß.** Statt die
-  Senke zu retten, liegt näher, eine zweite danebenzustellen — siehe die
-  Werkzeug-Idee in Abschnitt 9.
+  Senke zu retten, liegt näher, eine zweite danebenzustellen. Daraus ist M5a
+  geworden — Gehöfte aufbrechen und die Axt, siehe `01-PLAN.md`.
 - **Horden-Rhythmus.** Alle 3 Tage ist ein Startwert, kein Ergebnis. Wird beim Testen
   gedreht.
 - **Gehöft-Layout.** Wie viele Öffnungen kann ein Spieler realistisch verteidigen?
