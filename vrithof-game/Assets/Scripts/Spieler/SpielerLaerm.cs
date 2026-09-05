@@ -92,7 +92,10 @@ namespace Vrithof.Spieler
 
         void Schritte()
         {
-            if (controller.Tempo < 0.1f)
+            // Auf den Willen hoeren, nicht auf das Ausrollen: sonst fallen nach
+            // dem Loslassen noch ein bis drei Schritte, waehrend der Controller
+            // weich abbremst.
+            if (!controller.WillLaufen || controller.Tempo < 0.5f)
             {
                 naechsterSchritt = 0f;    // beim Anhalten sofort wieder bereit
                 return;
@@ -136,7 +139,8 @@ namespace Vrithof.Spieler
         /// Gizmo soll die Reichweite zeigen, nicht auf den naechsten Schritt warten.
         public float AktuelleReichweite()
         {
-            if (controller == null || controller.Tempo < 0.1f) return 0f;
+            if (controller == null || !controller.WillLaufen || controller.Tempo < 0.5f)
+                return 0f;
             return controller.Sprintet ? sprinten
                  : controller.IstGeduckt ? schleichen
                  : gehen;

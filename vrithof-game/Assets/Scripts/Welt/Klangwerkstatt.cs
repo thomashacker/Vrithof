@@ -121,6 +121,40 @@ namespace Vrithof.Welt
             return Aus(d, "Stoehnen");
         }
 
+        /// Knisterndes Feuer, als Schleife gedacht. Ein dumpfes Grundrauschen mit
+        /// unregelmaessigen Knacksern darueber — das Unregelmaessige ist es, was
+        /// den Unterschied zwischen Feuer und Rauschen ausmacht.
+        public static AudioClip Knistern()
+        {
+            int n = Rate * 2;                       // 2 s Schleife
+            var d = new float[n];
+            float glatt = 0f;
+
+            for (int i = 0; i < n; i++)
+            {
+                glatt = Mathf.Lerp(glatt, Random.Range(-1f, 1f), 0.12f);
+                d[i] = glatt * 0.22f;
+            }
+
+            // Knackser daruebergelegt, aber nicht bis ans Ende: sonst schneidet
+            // der Schleifenpunkt einen ab und es klickt bei jeder Runde.
+            for (int k = 0; k < 16; k++)
+            {
+                int start = Random.Range(0, n - Rate / 2);
+                int laenge = Random.Range(Rate / 120, Rate / 35);
+                float amp = Random.Range(0.3f, 0.9f);
+
+                for (int i = 0; i < laenge && start + i < n; i++)
+                {
+                    float t = i / (float)laenge;
+                    d[start + i] += Random.Range(-1f, 1f) * Mathf.Exp(-t * 18f) * amp * 0.45f;
+                }
+            }
+
+            for (int i = 0; i < n; i++) d[i] = Mathf.Clamp(d[i], -1f, 1f);
+            return Aus(d, "Knistern");
+        }
+
         /// Treffer am eigenen Leib. Tief und kurz — mehr Wucht als Klang.
         public static AudioClip Treffer()
         {

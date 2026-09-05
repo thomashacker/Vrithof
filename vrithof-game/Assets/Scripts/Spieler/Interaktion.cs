@@ -68,10 +68,13 @@ namespace Vrithof.Spieler
         Fackel fackel;
         Ausdauer kraft;
         Axt axt;
+        Schlafen schlaf;
         Camera blick;
         Openable imVisier;
         LootBehaelter truheImVisier;
         Amboss ambossImVisier;
+        Bett bettImVisier;
+        Feuerstelle feuerImVisier;
         string beuteText = "";
         float beuteBis;
         float fortschritt;
@@ -91,6 +94,7 @@ namespace Vrithof.Spieler
             fackel = GetComponent<Fackel>();
             kraft = GetComponent<Ausdauer>();
             axt = GetComponent<Axt>();
+            schlaf = GetComponent<Schlafen>();
             koerper = GetComponent<CharacterController>();
             quelle = GetComponent<AudioSource>();
             if (quelle == null) quelle = gameObject.AddComponent<AudioSource>();
@@ -120,7 +124,15 @@ namespace Vrithof.Spieler
             if (truheImVisier != vorherTruhe || ambossImVisier != vorherAmboss)
                 fortschritt = 0f;
 
-            if (ambossImVisier != null) Schmieden();
+            if (feuerImVisier != null) Entzuenden();
+            else if (bettImVisier != null)
+            {
+                if (schlaf != null && schlaf.KannSchlafen(bettImVisier)
+                    && Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
+                    schlaf.Einschlafen(bettImVisier);
+                fortschritt = 0f;
+            }
+            else if (ambossImVisier != null) Schmieden();
             else if (truheImVisier != null) Durchsuchen();
             else Haemmern();
 
@@ -248,6 +260,8 @@ namespace Vrithof.Spieler
             imVisier = null;
             truheImVisier = null;
             ambossImVisier = null;
+            bettImVisier = null;
+            feuerImVisier = null;
 
             var strahl = new Ray(blick.transform.position, blick.transform.forward);
             if (!Physics.Raycast(strahl, out var treffer, reichweite,
@@ -261,12 +275,43 @@ namespace Vrithof.Spieler
             imVisier = treffer.collider.GetComponentInParent<Openable>();
             truheImVisier = treffer.collider.GetComponentInParent<LootBehaelter>();
             ambossImVisier = treffer.collider.GetComponentInParent<Amboss>();
+            bettImVisier = treffer.collider.GetComponentInParent<Bett>();
+            feuerImVisier = treffer.collider.GetComponentInParent<Feuerstelle>();
 
             string was = imVisier != null ? " — Openable"
                        : truheImVisier != null ? " — Truhe"
                        : ambossImVisier != null ? " — Amboss"
+                       : bettImVisier != null ? " — Bett"
+                       : feuerImVisier != null ? " — Feuerstelle"
                        : "";
             letzterTreffer = $"{treffer.collider.name} ({treffer.distance:0.0} m){was}";
+        }
+
+        // Feuer faengt man mit Feuer: nur mit brennender Fackel. Damit hat die
+        // Fackel einen zweiten Zweck, und Licht bleibt eine Entscheidung.
+        void Entzuenden()
+        {
+            bool moeglich = !feuerImVisier.Brennt && fackel != null && fackel.Brennt;
+            if (!moeglich || Keyboard.current == null || !Keyboard.current.eKey.isPressed)
+            {
+                fortschritt = 0f;
+                return;
+            }
+
+            if (laerm != null && Time.time >= naechsterSchlag)
+            {
+                naechsterSchlag = Time.time + schlagIntervall;
+                laerm.Melden(feuerImVisier.laerm * 0.5f, null);
+            }
+
+            laufendeDauer = feuerImVisier.anzuendZeit;
+            fortschritt += Time.deltaTime;
+            if (fortschritt < feuerImVisier.anzuendZeit) return;
+
+            fortschritt = 0f;
+            feuerImVisier.Anzuenden();
+            beuteText = "Feuer brennt";
+            beuteBis = Time.time + 2.5f;
         }
 
         // Am Amboss: Axt schmieden, oder eine stumpfe wieder scharf machen.
@@ -371,6 +416,23 @@ namespace Vrithof.Spieler
 
             if (Time.time < beuteBis)
                 Zeile(my - 60, beuteText, new Color(1f, 0.9f, 0.5f), 18);
+
+            if (feuerImVisier != null)
+            {
+                Zeile(my + 20, feuerImVisier.Brennt ? "brennt"
+                      : fackel != null && fackel.Brennt ? "[E] halten — anzünden"
+                      : "braucht eine brennende Fackel", Color.white, 16);
+                Fortschrittsbalken(mx, my);
+                return;
+            }
+
+            if (bettImVisier != null)
+            {
+                Zeile(my + 20, schlaf == null ? ""
+                      : schlaf.KannSchlafen(bettImVisier) ? "[E] schlafen bis zum Morgen"
+                      : "erst wenn es dunkel ist", Color.white, 16);
+                return;
+            }
 
             if (ambossImVisier != null)
             {

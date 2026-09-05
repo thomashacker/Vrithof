@@ -5,6 +5,11 @@ Nur was im Spiel gelandet ist.
 
 ---
 
+## 2026-09-05 — Nacht spielbar machen
+- Schlafsystem: Bett, Zeitraffer statt Warten, Aufwachen wenn ein Zombie nah kommt — damit haben die Barrikaden endlich einen Zweck
+- Orientierung im Dunkeln: anzündbare Feuerstellen (Wegmarke und Lockmittel zugleich), `Wegenetz` zwischen den Gehöften, `Weltgrenze` gegen das Herunterfallen
+- Zombie-Schritte und Feuer-Knistern; Nahrungsbalance neu gerechnet, Nachtnebel ausgedünnt
+
 ## 2026-09-05 — Eigener Player-Controller
 - `SpielerController` ersetzt das Starter Asset und `Schleichen`: Wandreibung weg, Bodenkontakt ohne LayerMask, Ausdauer und Lärm hängen an sauberen Schaltern statt an verbogenen Fremdwerten
 - Debug-Gizmos: Hörweite als Bodenkreis, Sichtkegel je Zombie mit echter Reichweite

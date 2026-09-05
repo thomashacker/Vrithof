@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using Vrithof.Spieler;
@@ -65,6 +66,13 @@ namespace Vrithof.Zombies
         [Tooltip("Der Schlag auf Bretter. Im Dunkeln die einzige Information " +
                  "darueber, an welcher Wand sie gerade arbeiten.")]
         public AudioClip schlagKlang;
+        [Tooltip("Schlurfende Schritte. Wer sie hoert, wird nicht mehr aus dem " +
+                 "Dunkeln ueberrascht.")]
+        public AudioClip schrittKlang;
+        [Tooltip("Nach wie vielen zurueckgelegten Metern ein Schritt faellt. " +
+                 "Ueber die Strecke statt ueber die Zeit — dann passt der Takt " +
+                 "von allein zum Tempo.")]
+        public float schrittWeite = 1.1f;
         [Range(0f, 1f)] public float lautstaerke = 0.6f;
         public float stoehnAbstandMin = 3f;
         public float stoehnAbstandMax = 9f;
@@ -102,6 +110,13 @@ namespace Vrithof.Zombies
                  "nicht irgendeines in der Naehe.")]
         public float oeffnungsUmkreis = 12f;
 
+        /// Alle lebenden Zombies. Wie bei den Oeffnungen: jeder meldet sich
+        /// selbst an, statt dass ein Manager alle kennen muss.
+        public static readonly List<Zombie> Alle = new List<Zombie>();
+
+        void OnEnable() { Alle.Add(this); }
+        void OnDisable() { Alle.Remove(this); }
+
         NavMeshAgent agent;
         SpielerLeben opfer;
         Fackel fackel;
@@ -115,7 +130,9 @@ namespace Vrithof.Zombies
         float wanderWeiterAb;
         Vector3 zielVorherigePosition;
         AudioSource stimme;
+        AudioSource fuesse;
         float naechstesStoehnen;
+        float strecke;
         float naechsteAktualisierung;
         float naechsterSchlag;
         NavMeshPath pfad;   // erst in Awake — im Konstruktor verbietet Unity das
@@ -134,6 +151,16 @@ namespace Vrithof.Zombies
             stimme.rolloffMode = AudioRolloffMode.Linear;
             stimme.minDistance = 2f;
             stimme.maxDistance = hoerweite;
+
+            if (schrittKlang == null) schrittKlang = Klangwerkstatt.Schritt(true);
+            // Eigene Quelle: sonst verstellt ein Schritt die Tonhoehe eines
+            // laufenden Stoehnens.
+            fuesse = gameObject.AddComponent<AudioSource>();
+            fuesse.playOnAwake = false;
+            fuesse.spatialBlend = 1f;
+            fuesse.rolloffMode = AudioRolloffMode.Linear;
+            fuesse.minDistance = 1.5f;
+            fuesse.maxDistance = hoerweite;
 
             if (gesichtZeigen) GesichtBauen();
         }
@@ -184,6 +211,7 @@ namespace Vrithof.Zombies
 
             Zuschlagen();
             Stoehnen();
+            Schritte();
         }
 
         /// Von aussen ein Ziel geben — der Spawner setzt damit den Ort, der sie
@@ -365,6 +393,21 @@ namespace Vrithof.Zombies
                 Gizmos.color = new Color(1f, 0.55f, 0.1f, 0.9f);
                 Gizmos.DrawLine(auge, zielOeffnung.transform.position);
             }
+        }
+
+        // Ueber die zurueckgelegte Strecke getaktet: schlurfen sie langsam,
+        // fallen die Schritte selten, verfolgen sie dich, wird es schneller —
+        // ohne dass man den Takt an das Tempo koppeln muesste.
+        void Schritte()
+        {
+            if (fuesse == null || schrittKlang == null) return;
+
+            strecke += agent.velocity.magnitude * Time.deltaTime;
+            if (strecke < schrittWeite) return;
+
+            strecke = 0f;
+            fuesse.pitch = Random.Range(0.65f, 0.85f);   // tiefer = schwerfaellig
+            fuesse.PlayOneShot(schrittKlang, lautstaerke * 0.7f);
         }
 
         void Stoehnen()

@@ -7,23 +7,23 @@ Pause zurückholt._
 
 **Zuletzt gemacht:**
 
-> Eigener `SpielerController` ersetzt den Starter-Asset-Controller und `Schleichen`.
-> Damit sind die Wandreibung und drei Umwege weg (Ausdauer und Schleichen haben fremde
-> Werte verbogen, die Sprungsperre hing an der Skript-Reihenfolge). Dazu: Debug-Gizmos
-> für Hörweite und Sichtkegel, Treffer-Feedback, und Sicht koppelt an die Tageszeit.
+> Nacht-Runde: Schlafsystem (Bett, Zeitraffer, Aufwachen bei Zombie-Nähe), Feuerstellen
+> zum Anzünden (Wegmarke *und* Lockmittel), `Wegenetz` als Autoren-Werkzeug, `Weltgrenze`
+> auf der Boden-Plane. Dazu Zombie-Schritte, Knistern, und die Nahrungsbalance neu
+> gerechnet — der Tagesbedarf war fast so groß wie die Magenkapazität.
 
 **Läuft der Build?**
 
-> Ja. Nach dem Controller-Umbau: `FirstPersonController` und `Schleichen` müssen vom
-> Player-Prefab runter, `SpielerController` drauf, `kameraZiel` auf `PlayerCameraRoot`.
+> Ja. Deutlich besser spielbar — Orientierung nachts über Feuerstellen und Wege,
+> Schlafen nimmt die Wartezeit.
 
 **Als Nächstes dran:**
 
-> Drei Wege, alle plan-konform:
-> **Blender-Spur** (Session 7–8) — modulares Gehöft-Kit, und Blockout-Bäume als
-> Verdecker. Die zweite Spur ist offen, seit der Loop steht.
-> **M5b** — Nahkampf, Mixamo-Rig, IK-Layer, Grab-Mechanik.
-> **Das GATE** — drei Abende spielen, die fünf Fragen beantworten.
+> **M5b, und darin zuerst der Mixamo-Rig.** Package `com.unity.animation.rigging`
+> installieren, Zombie aus Kapsel zu echtem Modell machen (Idle/Walk/Attack als
+> Humanoid), dann IK-Layer. Der Nahkampf kommt danach — Kampf zuerst zu bauen kann
+> den Loop kaputtmachen.
+> Alternativ die **Blender-Spur** (Gehöft-Kit, Verdecker) oder das **GATE**.
 
 **Wo der Hund begraben liegt:**
 
@@ -36,6 +36,10 @@ Pause zurückholt._
 > ist flach und leer. Der Atmosphären-Abend gehört wiederholt, sobald Bäume und echte
 > Geometrie stehen — dann lohnt auch volumetrisches Licht. Details in `02-DESIGN.md`
 > Abschnitt 6.
+>
+> **Nahrung hat keine erneuerbare Quelle** — Truhen sind einmalig, irgendwann ist
+> Schluss. Im POC ist das der Loop, danach braucht es Jagd oder ein Feld.
+> Siehe `02-DESIGN.md` Abschnitt 10.
 >
 > **Offen seit M4:** Schaust du beim Plündern auf die Uhr? Das ist das Fertig-Kriterium
 > des POC und noch unbeantwortet. Ebenso ungeprüft: ob die Nacht mit den zäheren

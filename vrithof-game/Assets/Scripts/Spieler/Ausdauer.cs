@@ -100,6 +100,13 @@ namespace Vrithof.Spieler
             controller.sprungErlaubt = Reicht(sprungKosten);
         }
 
+        /// Randvoll — nach einer durchschlafenen Nacht.
+        public void Auffuellen()
+        {
+            ausdauer = maxAusdauer;
+            erschoepft = false;
+        }
+
         /// Reicht die Ausdauer fuer eine einzelne Anstrengung?
         public bool Reicht(float menge) => !erschoepft && ausdauer >= menge;
 

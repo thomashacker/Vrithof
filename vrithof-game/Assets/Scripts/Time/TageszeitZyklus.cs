@@ -53,8 +53,10 @@ namespace Vrithof.Zeit
         [Tooltip("Dichte am Tag. Hoeher heisst weniger Weitsicht — und weniger " +
                  "Ueberblick beim Planen der Route.")]
         public float tagDichte = 0.014f;
-        [Tooltip("Dichte in der Nacht. Deutlich hoeher: die Nacht soll eng sein.")]
-        public float nachtDichte = 0.05f;
+        [Tooltip("Dichte in der Nacht. Hoeher als am Tag, aber nicht blind: bei " +
+                 "ExponentialSquared sieht man grob 2/Dichte weit — 0.025 sind also " +
+                 "rund 80 Meter. Wer weiter sehen will, muss hier runter.")]
+        public float nachtDichte = 0.025f;
 
         [Header("Uhr-Anzeige")]
         public bool uhrZeigen = true;

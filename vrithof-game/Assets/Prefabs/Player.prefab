@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 529950229767350785}
   - component: {fileID: 1982602336103481695}
   - component: {fileID: 6497414952544727619}
+  - component: {fileID: 4724323669764339542}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -298,7 +299,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Vrithof.Spieler.Interaktion
   reichweite: 3
-  bauZeit: 7
+  bauZeit: 4
   abbauZeit: 5
   steigReichweite: 2
   steigDauer: 0.55
@@ -350,10 +351,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 083b45a6f9d85514aa79271ae73e8a81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Vrithof.Spieler.NahrungsVorrat
-  maxNahrung: 100
-  startNahrung: 70
-  verbrauchProStunde: 3.5
-  einheitenWert: 20
+  maxNahrung: 200
+  startNahrung: 140
+  verbrauchProStunde: 1.5
+  einheitenWert: 15
   hungerSchwelle: 0
   hungerSchaden: 2
   anzeigen: 1
@@ -394,6 +395,20 @@ MonoBehaviour:
   schaerfe: 0
   tempoFaktor: 4
   anzeigen: 1
+--- !u!114 &4724323669764339542
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 863333754217204002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ffbc7cc9950fb124da1c55fb98ae879e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Vrithof.Spieler.Schlafen
+  ausgeruhtAufwachen: 1
+  schleierZeigen: 1
 --- !u!1 &1148076288544165665
 GameObject:
   m_ObjectHideFlags: 0

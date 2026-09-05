@@ -337,12 +337,24 @@ ein monatelanges Tuning-Loch.
 - **Karte als findbares Item**, unvollständig. Gegenmittel gegen den
   Übersichtsverlust in First Person.
 - **Werkzeug-Haltbarkeit.** Klingen stumpfen ab, Wetzstein, Eisen als Reparaturkosten.
-- **Eigener Player-Controller mit Gewicht.** Der Starter-Asset-Controller wird ersetzt.
-  Ziel ist Trägheit statt Reaktionsfreude: Beschleunigung und Abbremsen brauchen Zeit,
-  Rüstung macht schwerer — und **lauter**, was direkt ans Lärm-System andockt. Damit
-  wird Ausrüstung eine Abwägung statt eine Verbesserung. Bis dahin bleibt der
-  Starter-Asset-Controller stehen, samt seiner Wandreibung: ihn zu reparieren wäre
-  Arbeit an etwas, das sowieso wegfliegt.
+- **Gewicht im Player-Controller.** Der eigene Controller steht (`SpielerController`),
+  die Trägheit fehlt noch: Beschleunigung und Abbremsen sollen Zeit brauchen, Rüstung
+  soll schwerer machen — und **lauter**, was direkt ans Lärm-System andockt. Damit wird
+  Ausrüstung eine Abwägung statt eine Verbesserung. Die Schraube dafür ist da
+  (`beschleunigung`), nur neutral eingestellt.
+- **Basis ausbauen statt frei bauen.** Nicht Valheim auf leerem Terrain, sondern
+  **bestehende Gehöfte erweitern**: Räume mit Zweck (Lager, Küche, Schlafraum),
+  eine Mauer außenrum, ein Aussichtspunkt. Der Reiz ist nicht Dekoration, sondern
+  dass jeder Raum etwas *tut* — und dass man ihn nebenbei gestalten kann.
+
+  **Mit Statik**, und zwar eher realistischer als Valheim: Tragen und Getragenwerden
+  soll nachvollziehbar sein, nicht nur eine Farbskala. Das ist der teuerste Teil und
+  der Grund, warum das Ganze hinter dem GATE liegt — ein Bausystem mit Snapping,
+  Vorschau, Rotation, Bauteil-Kit und Statik sind Wochen, keine Abende.
+
+  Billige Vorstufe, falls es vorher juckt: einzelne andockbare Teile (Palisade,
+  Hofbarriere, verstärkte Tür) ohne Grid und ohne Statik. Gibt das Gefühl, den
+  eigenen Ort zu formen, für einen Abend Arbeit.
 - **Licht als Ressource.** Talg und Wachs waren teuer, Nacht im Mittelalter ist
   vollständige Dunkelheit. In FP enorm stark.
 
@@ -380,6 +392,16 @@ ein monatelanges Tuning-Loch.
   sondern: **Eisen hat nur eine Senke, und die macht keinen Spaß.** Statt die
   Senke zu retten, liegt näher, eine zweite danebenzustellen. Daraus ist M5a
   geworden — Gehöfte aufbrechen und die Axt, siehe `01-PLAN.md`.
+- **Nahrung hat keine erneuerbare Quelle.** Truhen sind einmalig, Nahrung ist
+  Dauerverbrauch — irgendwann sind alle Gehöfte leer und man verhungert
+  zwangsläufig. Im POC ist das sogar richtig, es *ist* der Loop: Die Umgebung
+  wird ärmer, man muss weiter raus. Danach braucht es aber eine nachwachsende
+  Quelle — Jagd, ein Feld, Angeln. Passt zum Bausystem: Küche und Vorratsraum
+  wären die natürlichen Orte dafür.
+
+  **Die Regel, die aus dem Fehlbalancing gelernt wurde:** Der Tagesbedarf muss
+  deutlich unter der Magenkapazität liegen. Sonst lässt sich nie ein Vorrat
+  anlegen, und aus Planung wird Hetze.
 - **Horden-Rhythmus.** Alle 3 Tage ist ein Startwert, kein Ergebnis. Wird beim Testen
   gedreht.
 - **Gehöft-Layout.** Wie viele Öffnungen kann ein Spieler realistisch verteidigen?

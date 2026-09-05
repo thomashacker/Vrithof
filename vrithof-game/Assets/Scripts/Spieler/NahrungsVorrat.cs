@@ -17,15 +17,16 @@ namespace Vrithof.Spieler
     public class NahrungsVorrat : MonoBehaviour
     {
         [Header("Nahrung")]
-        public float maxNahrung = 100f;
+        public float maxNahrung = 200f;
         [Tooltip("Startwert. Bewusst nicht voll — der erste Ausflug soll nicht " +
                  "warten koennen.")]
-        public float startNahrung = 70f;
-        [Tooltip("Verbrauch pro Spielstunde. Der Zyklus laeuft schnell, also " +
-                 "haengt das direkt an tagLaengeMinuten.")]
-        public float verbrauchProStunde = 3.5f;
+        public float startNahrung = 140f;
+        [Tooltip("Verbrauch pro Spielstunde. Mal 24 ergibt den Tagesbedarf — " +
+                 "der muss deutlich unter maxNahrung liegen, sonst laesst sich nie " +
+                 "ein Vorrat anlegen und es bleibt bei Hetze statt Planung.")]
+        public float verbrauchProStunde = 1.5f;
         [Tooltip("Wie viel Nahrung eine gefundene Einheit bringt.")]
-        public float einheitenWert = 20f;
+        public float einheitenWert = 15f;
 
         [Header("Hunger")]
         [Tooltip("Ab diesem Wert tut es weh: Leben tickt herunter.")]

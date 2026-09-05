@@ -64,6 +64,11 @@ namespace Vrithof.Spieler
         /// die Ausdauer, statt den Absprung an der Velocity zu erraten.
         public event Action Gesprungen;
 
+        /// Liegt gerade Bewegungs-Eingabe an? Nicht dasselbe wie Tempo > 0:
+        /// nach dem Loslassen rollt man noch aus. Wer daran haengt (die
+        /// Schrittgeraeusche tun es), soll beim Loslassen sofort aufhoeren.
+        public bool WillLaufen { get; private set; }
+
         public bool AufDemBoden { get; private set; }
         public bool IstGeduckt { get; private set; }
         public bool Sprintet { get; private set; }
@@ -124,10 +129,10 @@ namespace Vrithof.Spieler
 
         void Bewegen()
         {
-            Sprintet = eingabe.sprint && sprintErlaubt && !IstGeduckt
-                       && eingabe.move != Vector2.zero;
+            WillLaufen = eingabe.move != Vector2.zero;
+            Sprintet = eingabe.sprint && sprintErlaubt && !IstGeduckt && WillLaufen;
 
-            float zielTempo = eingabe.move == Vector2.zero ? 0f
+            float zielTempo = !WillLaufen ? 0f
                             : IstGeduckt ? duckTempo
                             : Sprintet ? sprintTempo
                             : gehTempo;
