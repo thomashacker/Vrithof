@@ -7,29 +7,29 @@ Pause zurückholt._
 
 **Zuletzt gemacht:**
 
-> M4 fertig ⭐ **der POC steht.** Eisen wird aus Truhen geplündert statt geschenkt,
-> drei Gehöfte als Prefabs verteilt, Nahrung tickt an der Spielzeit. Dazu Fackel mit
-> Brenndauer (macht dich sichtbarer), wandernde Zombies (ziehen von Gehöft zu Gehöft),
-> Ausdauer für Sprung und Klettern. Tageslänge jetzt in Minuten.
+> M5a fertig: Fremde Gehöfte starten verrammelt (`GehoeftZustand` würfelt das aus),
+> Aufbrechen kostet Zeit und Lärm. Axt aus Eisen am Amboss in der Basis — bricht 2,5×
+> schneller auf, wird stumpf, wird dort geschärft. Barrikaden dreimal zäher, Nageln
+> und Abbauen langsamer.
 
 **Läuft der Build?**
 
-> Ja. Deutlich lebendiger als M3 — Plündern, Nahrung und wandernde Zombies tragen den Loop.
+> Ja. Verrammelte Häuser und die Axt machen das Plündern spürbar besser.
 
 **Als Nächstes dran:**
 
-> **M5a — Eisen bekommt Sinn.** Fremde Gehöfte starten verbarrikadiert (Beute kostet
-> Zeit und Lärm), Axt aus Eisen bricht schnell auf und wird stumpf. Details in `01-PLAN.md`.
-> Danach M5b (Nahkampf, Mixamo-Rig, IK, Grab).
+> **M3.5 — Atmosphären-Abend.** Genau ein Abend: Nebel, Post-Processing-Volume,
+> Sonnenwinkel. Kein Modellieren. Die Fackel gibt es schon, sie kommt ohne Nebel nur
+> nicht zur Geltung. Danach M5b (Nahkampf, Mixamo-Rig, IK, Grab), dann das GATE.
 
 **Wo der Hund begraben liegt:**
 
-> **Verbarrikadieren macht keinen Spaß, und das ist nach M4 klarer geworden:** Der Loop
-> trägt auch ohne. Das Problem ist nicht die Nacht, sondern dass **Eisen nur eine Senke
-> hat**. Daraus ist M5a geworden; Befund in `02-DESIGN.md` Abschnitt 10.
+> **Offen seit M4:** Schaust du beim Plündern auf die Uhr? Das ist das Fertig-Kriterium
+> des POC und noch unbeantwortet. Ebenso ungeprüft: ob die Nacht mit den zäheren
+> Barrikaden (120 HP statt 40) jetzt überstehbar *und* verlierbar ist.
 >
-> **Offen aus dem M4-Test:** Schaust du beim Plündern auf die Uhr? Das ist das
-> Fertig-Kriterium des POC und noch unbeantwortet.
+> Ein Brett kostet weiter 4 Eisen, hält aber dreimal so lange — Eisen ist dadurch
+> weniger knapp geworden. Falls es zu üppig wirkt: `eisenProBrett`, nicht die HP.
 >
 > `TageszeitZyklus` stellt `RenderSettings` global um — Game-View im Play beurteilen.
 > Feld heißt jetzt `tagLaengeMinuten`, alter Sekundenwert ging beim Umbenennen verloren.
@@ -49,4 +49,4 @@ Pause zurückholt._
 
 ---
 
-**Aktueller Meilenstein:** M5a
+**Aktueller Meilenstein:** M3.5

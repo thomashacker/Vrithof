@@ -5,6 +5,11 @@ Nur was im Spiel gelandet ist.
 
 ---
 
+## 2026-09-05 — M5a: Eisen bekommt Sinn
+- Fremde Gehöfte starten verrammelt (`GehoeftZustand`, zufällig verteilt); Aufbrechen kostet Zeit und macht Lärm
+- Axt aus Eisen am Amboss in der Basis: bricht 2,5× schneller auf, wird stumpf, wird dort wieder geschärft
+- Barrikaden dreimal zäher, Nageln und Abbauen deutlich langsamer — die Arbeit gehört an den Abend
+
 ## 2026-09-04 — M4: Der Loop schließt sich ⭐
 - Eisen, Nahrung und Fackeln werden aus Truhen geplündert statt geschenkt; drei Gehöfte als Prefabs verteilt
 - Nahrung tickt an der Spielzeit und treibt nach draußen; Fackel mit Brenndauer macht sichtbar, aber auch sichtbarer

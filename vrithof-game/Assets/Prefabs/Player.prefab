@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 3765503421044766849}
   - component: {fileID: 529950229767350785}
   - component: {fileID: 1982602336103481695}
+  - component: {fileID: 6497414952544727619}
   m_Layer: 8
   m_Name: Player
   m_TagString: Player
@@ -262,6 +263,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Vrithof.Spieler.Ausdauer
   maxAusdauer: 100
   verbrauchProSekunde: 20
+  sprungKosten: 15
+  kletterKosten: 22
   ruheRegeneration: 15
   gehRegeneration: 2
   erholungsSchwelle: 0.25
@@ -383,6 +386,23 @@ MonoBehaviour:
   staerke: 3.5
   flackern: 0.35
   sichtFaktor: 2
+  anzeigen: 1
+--- !u!114 &6497414952544727619
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 863333754217204002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005627b8cbce7d845905eccf58a682f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Vrithof.Spieler.Axt
+  hatAxt: 0
+  maxSchaerfe: 25
+  schaerfe: 0
+  tempoFaktor: 3
   anzeigen: 1
 --- !u!1 &1148076288544165665
 GameObject:

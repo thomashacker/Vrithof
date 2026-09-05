@@ -25,11 +25,14 @@ namespace Vrithof.Spieler
     {
         [Tooltip("Wie weit man langt. Armlaenge plus etwas.")]
         public float reichweite = 3f;
-        [Tooltip("Sekunden Haemmern pro Brett. Der Preis ist Zeit, nicht nur Eisen.")]
-        public float bauZeit = 1.5f;
-        [Tooltip("Sekunden fuer ein Brett wieder ab. Schneller als nageln — " +
-                 "aber im Zweifel immer noch zu langsam, wenn schon jemand davorsteht.")]
-        public float abbauZeit = 1f;
+        [Tooltip("Sekunden Haemmern pro Brett. Der Preis ist Zeit, nicht nur Eisen — " +
+                 "und bewusst so lang, dass man nachts nicht alles retten kann. " +
+                 "Dafuer haelt ein Brett laenger: die Arbeit gehoert an den Abend.")]
+        public float bauZeit = 4f;
+        [Tooltip("Sekunden fuer ein Brett wieder ab — mit blossen Haenden. " +
+                 "Bewusst zaeh: ein volles Fenster sind ueber zwanzig Sekunden " +
+                 "Laerm vor einem fremden Haus. Die Axt halbiert das gut.")]
+        public float abbauZeit = 7f;
 
         [Header("Durchsteigen")]
         [Tooltip("Wie weit man von der Oeffnung entfernt sein darf, um " +
@@ -62,12 +65,15 @@ namespace Vrithof.Spieler
         NahrungsVorrat magen;
         Fackel fackel;
         Ausdauer kraft;
+        Axt axt;
         Camera blick;
         Openable imVisier;
         LootBehaelter truheImVisier;
+        Amboss ambossImVisier;
         string beuteText = "";
         float beuteBis;
         float fortschritt;
+        float laufendeDauer = 1f;   // wofuer der Balken gerade steht
         string letzterTreffer = "-";
         float naechsterSchlag;
         AudioSource quelle;
@@ -82,6 +88,7 @@ namespace Vrithof.Spieler
             magen = GetComponent<NahrungsVorrat>();
             fackel = GetComponent<Fackel>();
             kraft = GetComponent<Ausdauer>();
+            axt = GetComponent<Axt>();
             koerper = GetComponent<CharacterController>();
             quelle = GetComponent<AudioSource>();
             if (quelle == null) quelle = gameObject.AddComponent<AudioSource>();
@@ -97,6 +104,7 @@ namespace Vrithof.Spieler
 
             var vorherOeffnung = imVisier;
             var vorherTruhe = truheImVisier;
+            var vorherAmboss = ambossImVisier;
             Anvisieren();
 
             if (imVisier != vorherOeffnung)
@@ -105,9 +113,11 @@ namespace Vrithof.Spieler
                 if (imVisier) imVisier.Hervorheben(true);
                 fortschritt = 0f;   // Ziel gewechselt -> von vorn
             }
-            if (truheImVisier != vorherTruhe) fortschritt = 0f;
+            if (truheImVisier != vorherTruhe || ambossImVisier != vorherAmboss)
+                fortschritt = 0f;
 
-            if (truheImVisier != null) Durchsuchen();
+            if (ambossImVisier != null) Schmieden();
+            else if (truheImVisier != null) Durchsuchen();
             else Haemmern();
 
             if (imVisier != null && KannDurchsteigen(imVisier)
@@ -177,8 +187,12 @@ namespace Vrithof.Spieler
                 return;
             }
 
-            float dauer = nageln ? bauZeit : abbauZeit;
+            // Nageln bleibt Handarbeit — die Axt hilft nur beim Aufbrechen.
+            float dauer = nageln
+                ? bauZeit
+                : abbauZeit / (axt != null ? axt.TempoFaktor : 1f);
             Haemmerschlag();
+            laufendeDauer = dauer;
             fortschritt += Time.deltaTime;
             if (fortschritt < dauer) return;
 
@@ -192,6 +206,7 @@ namespace Vrithof.Spieler
             else if (imVisier.Abbauen())
             {
                 vorrat.eisen += imVisier.eisenZurueck;
+                if (axt != null) axt.Abnutzen();
             }
         }
 
@@ -228,6 +243,7 @@ namespace Vrithof.Spieler
         {
             imVisier = null;
             truheImVisier = null;
+            ambossImVisier = null;
 
             var strahl = new Ray(blick.transform.position, blick.transform.forward);
             if (!Physics.Raycast(strahl, out var treffer, reichweite,
@@ -240,11 +256,50 @@ namespace Vrithof.Spieler
             // Trifft der Strahl ein Brett, sitzt das Openable am Elternobjekt.
             imVisier = treffer.collider.GetComponentInParent<Openable>();
             truheImVisier = treffer.collider.GetComponentInParent<LootBehaelter>();
+            ambossImVisier = treffer.collider.GetComponentInParent<Amboss>();
 
             string was = imVisier != null ? " — Openable"
                        : truheImVisier != null ? " — Truhe"
+                       : ambossImVisier != null ? " — Amboss"
                        : "";
             letzterTreffer = $"{treffer.collider.name} ({treffer.distance:0.0} m){was}";
+        }
+
+        // Am Amboss: Axt schmieden, oder eine stumpfe wieder scharf machen.
+        void Schmieden()
+        {
+            if (axt == null || vorrat == null
+                || Keyboard.current == null || !Keyboard.current.eKey.isPressed)
+            {
+                fortschritt = 0f;
+                return;
+            }
+
+            bool neu = !axt.hatAxt;
+            int kosten = neu ? ambossImVisier.schmiedeKosten : ambossImVisier.schliffKosten;
+            float dauer = neu ? ambossImVisier.schmiedeZeit : ambossImVisier.schliffZeit;
+
+            if ((!neu && !axt.BrauchtSchliff) || !vorrat.Reicht(kosten))
+            {
+                fortschritt = 0f;
+                return;
+            }
+
+            if (laerm != null && Time.time >= naechsterSchlag)
+            {
+                naechsterSchlag = Time.time + schlagIntervall;
+                laerm.Melden(ambossImVisier.laerm, hammerKlang);
+            }
+
+            laufendeDauer = dauer;
+            fortschritt += Time.deltaTime;
+            if (fortschritt < dauer) return;
+
+            fortschritt = 0f;
+            vorrat.Abziehen(kosten);
+            axt.Schmieden();
+            beuteText = neu ? "Axt geschmiedet" : "Axt geschaerft";
+            beuteBis = Time.time + 2.5f;
         }
 
         // Wuehlen ist derselbe Handgriff wie Haemmern: halten, warten, gebunden
@@ -264,6 +319,7 @@ namespace Vrithof.Spieler
                 laerm.Melden(truheImVisier.suchLaerm, null);
             }
 
+            laufendeDauer = truheImVisier.suchZeit;
             fortschritt += Time.deltaTime;
             if (fortschritt < truheImVisier.suchZeit) return;
 
@@ -310,21 +366,36 @@ namespace Vrithof.Spieler
             GUI.Label(new Rect(mx - 5, my - 12, 20, 24), "+", punkt);
 
             if (Time.time < beuteBis)
+                Zeile(my - 60, beuteText, new Color(1f, 0.9f, 0.5f), 18);
+
+            if (ambossImVisier != null)
             {
-                var b = new GUIStyle(GUI.skin.label)
-                { fontSize = 18, alignment = TextAnchor.MiddleCenter };
-                b.normal.textColor = new Color(1f, 0.9f, 0.5f);
-                GUI.Label(new Rect(mx - 200, my - 60, 400, 24), beuteText, b);
+                string atext;
+                if (axt == null) atext = "";
+                else if (!axt.hatAxt)
+                    atext = $"[E] halten — Axt schmieden, {ambossImVisier.schmiedeKosten} Eisen";
+                else if (axt.BrauchtSchliff)
+                    atext = $"[E] halten — Axt schaerfen, {ambossImVisier.schliffKosten} Eisen";
+                else
+                    atext = "Axt ist scharf";
+
+                if (axt != null && axt.hatAxt && axt.BrauchtSchliff
+                    && vorrat != null && !vorrat.Reicht(ambossImVisier.schliffKosten))
+                    atext = $"zu wenig Eisen ({ambossImVisier.schliffKosten})";
+                else if (axt != null && !axt.hatAxt
+                    && vorrat != null && !vorrat.Reicht(ambossImVisier.schmiedeKosten))
+                    atext = $"zu wenig Eisen ({ambossImVisier.schmiedeKosten})";
+
+                Zeile(my + 20, atext, Color.white, 16);
+                Fortschrittsbalken(mx, my);
+                return;
             }
 
             if (truheImVisier != null)
             {
-                var t = new GUIStyle(GUI.skin.label)
-                { fontSize = 16, alignment = TextAnchor.MiddleCenter };
-                t.normal.textColor = Color.white;
-                GUI.Label(new Rect(mx - 200, my + 20, 400, 24),
-                          truheImVisier.Gepluendert ? "durchsucht" : "[E] halten — durchsuchen", t);
-                Fortschrittsbalken(mx, my, truheImVisier.suchZeit);
+                Zeile(my + 20, truheImVisier.Gepluendert
+                      ? "durchsucht" : "[E] halten — durchsuchen", Color.white, 16);
+                Fortschrittsbalken(mx, my);
                 return;
             }
 
@@ -340,32 +411,50 @@ namespace Vrithof.Spieler
             else
                 text = $"[E] halten — ausbessern, {imVisier.NaechsteKosten} Eisen";
 
+            string zweite = null;
             if (imVisier.KannAbbauen)
-                text += $"     [Q] halten — Brett ab (+{imVisier.eisenZurueck})";
-            if (imVisier.IstOffen)
-                text = KannDurchsteigen(imVisier) ? "[F] durchsteigen" : "zu erschoepft";
-
-            var hinweis = new GUIStyle(GUI.skin.label)
             {
-                fontSize = 16,
-                alignment = TextAnchor.MiddleCenter
-            };
-            hinweis.normal.textColor = Color.white;
-            GUI.Label(new Rect(mx - 200, my + 20, 400, 24), text, hinweis);
+                string werkzeug = axt != null && axt.IstScharf ? " mit Axt" : "";
+                zweite = $"[Q] halten — Brett ab{werkzeug} (+{imVisier.eisenZurueck})";
+            }
+            if (imVisier.IstOffen)
+            {
+                text = KannDurchsteigen(imVisier) ? "[F] durchsteigen" : "zu erschoepft";
+                zweite = null;
+            }
 
-            Fortschrittsbalken(mx, my, bauZeit);
+            Zeile(my + 20, text, Color.white, 16);
+            if (zweite != null) Zeile(my + 42, zweite, Color.white, 16);
+
+            Fortschrittsbalken(mx, my);
         }
 
-        void Fortschrittsbalken(float mx, float my, float dauer)
+        // Eine zentrierte Zeile ueber die volle Bildbreite. Vorher stand alles
+        // in einem 400-Pixel-Kasten — lange Hinweise sind dort umgebrochen und
+        // abgeschnitten worden.
+        void Zeile(float y, string text, Color farbe, int groesse)
+        {
+            if (string.IsNullOrEmpty(text)) return;
+            var stil = new GUIStyle(GUI.skin.label)
+            {
+                fontSize = groesse,
+                alignment = TextAnchor.MiddleCenter,
+                wordWrap = false
+            };
+            stil.normal.textColor = farbe;
+            GUI.Label(new Rect(0, y, Screen.width, groesse + 8), text, stil);
+        }
+
+        void Fortschrittsbalken(float mx, float my)
         {
             if (fortschritt <= 0f) return;
 
-            var balken = new Rect(mx - 60, my + 46, 120, 6);
+            var balken = new Rect(mx - 60, my + 70, 120, 6);
             var alt = GUI.color;
             GUI.color = new Color(0f, 0f, 0f, 0.5f);
             GUI.DrawTexture(balken, Texture2D.whiteTexture);
             GUI.color = new Color(1f, 0.85f, 0.3f);
-            balken.width *= Mathf.Clamp01(fortschritt / Mathf.Max(0.05f, dauer));
+            balken.width *= Mathf.Clamp01(fortschritt / Mathf.Max(0.05f, laufendeDauer));
             GUI.DrawTexture(balken, Texture2D.whiteTexture);
             GUI.color = alt;
         }

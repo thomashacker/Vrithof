@@ -348,6 +348,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8007302400245792613}
   - component: {fileID: 8245165911955072407}
+  - component: {fileID: 5614375644800145742}
   m_Layer: 0
   m_Name: Gehoeft_01
   m_TagString: Untagged
@@ -414,6 +415,21 @@ MonoBehaviour:
   bodenMaterial: {fileID: 2100000, guid: 4d2789f03eafe4dae95a76e44fb5d3c9, type: 2}
   dachMaterial: {fileID: 2100000, guid: 4d2789f03eafe4dae95a76e44fb5d3c9, type: 2}
   brettMaterial: {fileID: 2100000, guid: 900ce941b426fbb40bbed47f93366f38, type: 2}
+--- !u!114 &5614375644800145742
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2671215578777464530}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6d21757c2101ba4d8c2d640714b3c9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Vrithof.Worldbuilding.GehoeftZustand
+  istBasis: 0
+  anteilVerrammelt: 0.75
+  anteilVoll: 0.4
 --- !u!1 &2743522537355349974
 GameObject:
   m_ObjectHideFlags: 0

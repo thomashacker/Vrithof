@@ -28,8 +28,9 @@ namespace Vrithof.Worldbuilding
         public int maxBretter = 3;
         [Tooltip("Bretter, die von Anfang an drauf sind. Normalerweise 0.")]
         public int startBretter = 0;
-        [Tooltip("Aushaltevermoegen eines einzelnen Bretts.")]
-        public float hpProBrett = 40f;
+        [Tooltip("Aushaltevermoegen eines einzelnen Bretts. Zentral setzbar ueber " +
+                 "GehoeftZustand — dort steht der Wert fuers ganze Gehoeft.")]
+        public float hpProBrett = 120f;
 
         [Header("Kosten")]
         [Tooltip("Eisen pro Brett — die Naegel, die es braucht.")]
@@ -135,6 +136,15 @@ namespace Vrithof.Worldbuilding
             }
 
             return false;
+        }
+
+        /// Brett-HP von aussen setzen. Der GehoeftZustand macht das fuers ganze
+        /// Gehoeft auf einmal, damit die Zahl an einer Stelle steht.
+        public void SetzeBrettHP(float hp)
+        {
+            if (hp <= 0f) return;
+            hpProBrett = hp;
+            brettRest = hp;
         }
 
         /// Steht hier ein Brett, das man wieder abnehmen kann?

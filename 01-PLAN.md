@@ -12,7 +12,8 @@
 - [x] M3 — Die Nacht funktioniert
 - [ ] M3.5 — Atmosphären-Abend
 - [x] M4 — Der Loop schließt sich ⭐ **← der eigentliche POC**
-- [ ] M5 — Es fühlt sich gut an
+- [x] M5a — Eisen bekommt Sinn
+- [ ] M5b — Es fühlt sich gut an
 - [ ] **GATE** — die ehrliche Frage
 - [ ] Ausbaustufe 2
 
