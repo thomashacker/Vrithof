@@ -10,7 +10,7 @@
 - [x] M1 — Es existiert
 - [x] M2 — Es ist gefährlich
 - [x] M3 — Die Nacht funktioniert
-- [ ] M3.5 — Atmosphären-Abend
+- [x] M3.5 — Atmosphären-Abend
 - [x] M4 — Der Loop schließt sich ⭐ **← der eigentliche POC**
 - [x] M5a — Eisen bekommt Sinn
 - [ ] M5b — Es fühlt sich gut an

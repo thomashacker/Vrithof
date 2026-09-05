@@ -227,6 +227,13 @@ keinem Aufwand fantastisch aus.
 > **Grenze:** Wenn du anfängst zu modellieren, um es schöner zu machen, hast du sie
 > überschritten.
 
+**Nach M3.5 gelernt:** Nebel, ACES und ein tiefer Sonnenstand sind eingebaut und
+bringen etwas — aber nicht viel. Der Grund ist geometrisch: **Lichtstrahlen im Nebel
+entstehen nur an Verdeckern.** Auf einer flachen Ebene mit vier Würfelhäusern gibt es
+nichts, was Licht unterbricht. Bäume, Dachkanten und Fensterrahmen sind die
+Voraussetzung, nicht die Kür — der Atmosphären-Abend gehört deshalb ein zweites Mal
+wiederholt, sobald die Welt Geometrie hat. Volumetrisches Licht lohnt erst dann.
+
 ---
 
 ## 7. Asset-Pipeline

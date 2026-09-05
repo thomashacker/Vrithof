@@ -44,6 +44,60 @@ namespace Vrithof.Welt
             return Aus(d, "Hammer");
         }
 
+        /// Rascheln in einer Truhe. Heller und unruhiger als ein Schritt —
+        /// mehrere kleine Stoesse statt eines Schlags.
+        public static AudioClip Wuehlen()
+        {
+            int n = Rate / 4;                       // 0.25 s
+            var d = new float[n];
+            float glatt = 0f;
+
+            for (int i = 0; i < n; i++)
+            {
+                float t = i / (float)n;
+                glatt = Mathf.Lerp(glatt, Random.Range(-1f, 1f), 0.6f);
+                float stoesse = Mathf.Abs(Mathf.Sin(t * Mathf.PI * 5f));
+                d[i] = glatt * stoesse * (1f - t) * 0.45f;
+            }
+            return Aus(d, "Wuehlen");
+        }
+
+        /// Scharren beim Hochziehen durchs Fenster. Rau, mit Anlauf und Ende.
+        public static AudioClip Scharren()
+        {
+            int n = Rate * 2 / 5;                   // 0.4 s
+            var d = new float[n];
+            float glatt = 0f;
+
+            for (int i = 0; i < n; i++)
+            {
+                float t = i / (float)n;
+                glatt = Mathf.Lerp(glatt, Random.Range(-1f, 1f), 0.32f);
+                d[i] = glatt * Mathf.Sin(Mathf.PI * t) * 0.5f;
+            }
+            return Aus(d, "Scharren");
+        }
+
+        /// Dumpfer Schlag auf Holz. Was man hoert, wenn sie an den Brettern
+        /// arbeiten — und damit die einzige Information darueber, an welcher
+        /// Wand sie gerade stehen.
+        public static AudioClip HolzSchlag()
+        {
+            int n = Rate / 6;                       // 0.17 s
+            var d = new float[n];
+            float glatt = 0f;
+
+            for (int i = 0; i < n; i++)
+            {
+                float t = i / (float)n;
+                float sek = i / (float)Rate;
+                glatt = Mathf.Lerp(glatt, Random.Range(-1f, 1f), 0.22f);   // sehr dumpf
+                float ton = Mathf.Sin(2f * Mathf.PI * 150f * sek);
+                d[i] = (glatt * 0.6f + ton * 0.4f) * Mathf.Exp(-t * 16f) * 0.8f;
+            }
+            return Aus(d, "HolzSchlag");
+        }
+
         /// Tiefes Stoehnen. Bewusst lang und leise — es soll Richtung verraten,
         /// nicht erschrecken.
         public static AudioClip Stoehnen()

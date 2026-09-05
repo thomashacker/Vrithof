@@ -632,13 +632,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a0ba867ffc0b4ffba1130b10781056c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Vrithof.Zeit.TageszeitZyklus
-  tagLaengeMinuten: 6
+  tagLaengeMinuten: 8
   startStunde: 6
   azimut: 30
+  maxSonnenhoehe: 55
   tagAmbient: {r: 0.45, g: 0.47, b: 0.5, a: 1}
   nachtAmbient: {r: 0.02, g: 0.02, b: 0.03, a: 1}
   nachtBeginn: 20
   nachtEnde: 6
+  nebel: 1
+  tagNebel: {r: 0.62, g: 0.68, b: 0.72, a: 1}
+  daemmerNebel: {r: 0.55, g: 0.38, b: 0.28, a: 1}
+  nachtNebel: {r: 0.03, g: 0.04, b: 0.06, a: 1}
+  tagDichte: 0.014
+  nachtDichte: 0.05
   uhrZeigen: 1
 --- !u!1001 &581723165
 PrefabInstance:
@@ -3869,6 +3876,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Vrithof.Worldbuilding.GehoeftZustand
   istBasis: 1
+  brettHP: 120
   anteilVerrammelt: 0.75
   anteilVoll: 0.4
 --- !u!65 &5939141909462184216

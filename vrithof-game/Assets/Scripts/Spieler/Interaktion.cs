@@ -52,8 +52,10 @@ namespace Vrithof.Spieler
         public float haemmerLaerm = 28f;
         [Tooltip("Sekunden zwischen zwei Hammerschlaegen.")]
         public float schlagIntervall = 0.4f;
-        [Tooltip("Leer lassen — dann wird ein Platzhalter erzeugt.")]
+        [Tooltip("Leer lassen — dann werden Platzhalter erzeugt.")]
         public AudioClip hammerKlang;
+        public AudioClip wuehlKlang;
+        public AudioClip steigKlang;
         [Range(0f, 1f)] public float lautstaerke = 0.5f;
 
         [Header("Anzeige")]
@@ -95,6 +97,8 @@ namespace Vrithof.Spieler
             quelle.playOnAwake = false;
             quelle.spatialBlend = 0f;
             if (hammerKlang == null) hammerKlang = Klangwerkstatt.Hammer();
+            if (wuehlKlang == null) wuehlKlang = Klangwerkstatt.Wuehlen();
+            if (steigKlang == null) steigKlang = Klangwerkstatt.Scharren();
         }
 
         void Update()
@@ -144,7 +148,7 @@ namespace Vrithof.Spieler
         {
             steigtGerade = true;
             if (kraft != null) kraft.Verbrauchen(kraft.kletterKosten);
-            if (laerm != null) laerm.Melden(steigLaerm, null);
+            if (laerm != null) laerm.Melden(steigLaerm, steigKlang);
 
             // Auf die Seite, die vom Spieler weg zeigt.
             Vector3 achse = o.transform.forward;
@@ -316,7 +320,7 @@ namespace Vrithof.Spieler
             if (laerm != null && Time.time >= naechsterSchlag)
             {
                 naechsterSchlag = Time.time + schlagIntervall;
-                laerm.Melden(truheImVisier.suchLaerm, null);
+                laerm.Melden(truheImVisier.suchLaerm, wuehlKlang);
             }
 
             laufendeDauer = truheImVisier.suchZeit;

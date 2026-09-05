@@ -21,6 +21,11 @@ namespace Vrithof.Zeit
         [Header("Sonne")]
         [Tooltip("Himmelsrichtung der Sonne (Grad um die Y-Achse).")]
         public float azimut = 30f;
+        [Tooltip("Hoechster Sonnenstand in Grad. Unter 90 steht sie nie senkrecht — " +
+                 "das gibt lange Schatten statt platter Draufsicht und ist laut " +
+                 "Design die halbe Miete am Valheim-Look.")]
+        [Range(15f, 90f)]
+        public float maxSonnenhoehe = 55f;
 
         [Header("Dunkelheit")]
         [Tooltip("Umgebungslicht am Tag.")]
@@ -35,6 +40,21 @@ namespace Vrithof.Zeit
         [Range(0f, 24f)]
         [Tooltip("Ab dieser Stunde ist es ueberstanden.")]
         public float nachtEnde = 6f;
+
+        [Header("Nebel")]
+        [Tooltip("Laut Design der wichtigste Einzelfaktor fuer den Look — und " +
+                 "zugleich das, was der Fackel nachts ueberhaupt erst einen " +
+                 "Lichtkegel gibt.")]
+        public bool nebel = true;
+        public Color tagNebel = new Color(0.62f, 0.68f, 0.72f);
+        [Tooltip("Daemmerung: warm gegen die kalten Schatten.")]
+        public Color daemmerNebel = new Color(0.55f, 0.38f, 0.28f);
+        public Color nachtNebel = new Color(0.03f, 0.04f, 0.06f);
+        [Tooltip("Dichte am Tag. Hoeher heisst weniger Weitsicht — und weniger " +
+                 "Ueberblick beim Planen der Route.")]
+        public float tagDichte = 0.014f;
+        [Tooltip("Dichte in der Nacht. Deutlich hoeher: die Nacht soll eng sein.")]
+        public float nachtDichte = 0.05f;
 
         [Header("Uhr-Anzeige")]
         public bool uhrZeigen = true;
@@ -96,13 +116,16 @@ namespace Vrithof.Zeit
 
         void Anwenden()
         {
-            // Sonnenstand: 6:00 Horizont (Aufgang), 12:00 Zenit, 18:00 Horizont (Untergang),
-            // 0:00 unter dem Horizont (Nacht).
-            float elevation = (stunde / 24f) * 360f - 90f;
-            transform.rotation = Quaternion.Euler(elevation, azimut, 0f);
+            // Tageskurve: 6:00 Horizont (Aufgang), 12:00 hoechster Stand,
+            // 18:00 Horizont (Untergang), 0:00 tief darunter.
+            float bogen = (stunde / 24f) * 360f - 90f;
+            float hoehe = Mathf.Sin(bogen * Mathf.Deg2Rad);   // -1 .. 1
+
+            // Nicht der rohe Bogen, sondern die begrenzte Hoehe: so steht die
+            // Sonne auch mittags schraeg und wirft lange Schatten.
+            transform.rotation = Quaternion.Euler(hoehe * maxSonnenhoehe, azimut, 0f);
 
             // Tagesfaktor: 1 tagsueber, weicher Uebergang in der Daemmerung, 0 nachts.
-            float hoehe = Mathf.Sin(elevation * Mathf.Deg2Rad);
             float licht = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(-0.15f, 0.25f, hoehe));
 
             sonne.intensity = licht * maxIntensitaet;   // Licht bleibt aktiv -> Skybox behaelt Sonnenrichtung
@@ -110,6 +133,23 @@ namespace Vrithof.Zeit
             RenderSettings.reflectionIntensity = licht;
             if (himmel != null && himmel.HasProperty("_Exposure"))
                 himmel.SetFloat("_Exposure", licht * tagExposure);   // Himmel faded auf schwarz
+
+            Nebeln(licht);
+        }
+
+        // Zwei Abschnitte statt eines Verlaufs: Nacht -> Daemmerung -> Tag.
+        // Ein einziges Lerp von Nacht nach Tag wuerde die warme Stunde
+        // verschlucken, und genau die traegt das Bild.
+        void Nebeln(float licht)
+        {
+            RenderSettings.fog = nebel;
+            if (!nebel) return;
+
+            RenderSettings.fogMode = FogMode.ExponentialSquared;
+            RenderSettings.fogColor = licht < 0.5f
+                ? Color.Lerp(nachtNebel, daemmerNebel, licht * 2f)
+                : Color.Lerp(daemmerNebel, tagNebel, (licht - 0.5f) * 2f);
+            RenderSettings.fogDensity = Mathf.Lerp(nachtDichte, tagDichte, licht);
         }
 
         void OnGUI()

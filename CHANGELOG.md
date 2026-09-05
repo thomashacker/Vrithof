@@ -5,6 +5,11 @@ Nur was im Spiel gelandet ist.
 
 ---
 
+## 2026-09-05 — M3.5: Atmosphären-Abend
+- Nebel im Tag/Nacht-Zyklus: drei Farben (Tag, Dämmerung, Nacht), nachts dichter
+- Sonne steht nie senkrecht (max. 55°) — lange Schatten statt platter Draufsicht
+- Alle Lärmquellen klingen jetzt: Wühlen, Klettern, und Zombies an den Brettern
+
 ## 2026-09-05 — M5a: Eisen bekommt Sinn
 - Fremde Gehöfte starten verrammelt (`GehoeftZustand`, zufällig verteilt); Aufbrechen kostet Zeit und macht Lärm
 - Axt aus Eisen am Amboss in der Basis: bricht 2,5× schneller auf, wird stumpf, wird dort wieder geschärft

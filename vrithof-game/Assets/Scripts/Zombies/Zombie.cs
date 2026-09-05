@@ -51,8 +51,11 @@ namespace Vrithof.Zombies
         public float bewegungsSchwelle = 0.05f;
 
         [Header("Klang")]
-        [Tooltip("Leer lassen — dann wird ein Platzhalter erzeugt.")]
+        [Tooltip("Leer lassen — dann werden Platzhalter erzeugt.")]
         public AudioClip stoehnKlang;
+        [Tooltip("Der Schlag auf Bretter. Im Dunkeln die einzige Information " +
+                 "darueber, an welcher Wand sie gerade arbeiten.")]
+        public AudioClip schlagKlang;
         [Range(0f, 1f)] public float lautstaerke = 0.6f;
         public float stoehnAbstandMin = 3f;
         public float stoehnAbstandMax = 9f;
@@ -107,6 +110,7 @@ namespace Vrithof.Zombies
             normalTempo = agent.speed;
 
             if (stoehnKlang == null) stoehnKlang = Klangwerkstatt.Stoehnen();
+            if (schlagKlang == null) schlagKlang = Klangwerkstatt.HolzSchlag();
             stimme = gameObject.AddComponent<AudioSource>();
             stimme.playOnAwake = false;
             stimme.spatialBlend = 1f;        // im Raum verortet — man hoert die Richtung
@@ -329,12 +333,21 @@ namespace Vrithof.Zombies
                 if (!InReichweite(zielOeffnung.transform.position)) return;
                 naechsterSchlag = Time.time + angriffsIntervall;
                 zielOeffnung.Schaden(schadenAnBarrikade);
+                Schlaggeraeusch();
                 return;
             }
 
             if (opfer == null || !InReichweite(ziel.position)) return;
             naechsterSchlag = Time.time + angriffsIntervall;
             opfer.Schaden(schaden);
+            Schlaggeraeusch();
+        }
+
+        void Schlaggeraeusch()
+        {
+            if (stimme == null || schlagKlang == null) return;
+            stimme.pitch = Random.Range(0.85f, 1.15f);
+            stimme.PlayOneShot(schlagKlang, lautstaerke);
         }
 
         // Flach messen: die Pivots liegen auf unterschiedlicher Hoehe, das soll
