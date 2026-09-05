@@ -1,5 +1,4 @@
 using UnityEngine;
-using StarterAssets;
 
 namespace Vrithof.Spieler
 {
@@ -10,15 +9,14 @@ namespace Vrithof.Spieler
     /// Wartebalken ist: Ausruhen kostet Tageszeit. Damit haengt die Ausdauer
     /// an der Uhr statt an sich selbst.
     ///
-    /// Der FirstPersonController wird bewusst nicht angefasst (Starter Asset).
-    /// Stattdessen wird bei Erschoepfung sein SprintSpeed auf MoveSpeed gesetzt —
-    /// er merkt davon nichts, und die Sprint-Taste bleibt unberuehrt. Haelt der
-    /// Spieler sie gedrueckt, laeuft er von selbst wieder los, sobald es reicht.
+    /// Der Controller wird nicht mehr heimlich verstellt. Er hat dafuer die
+    /// Schalter 'sprintErlaubt' und 'sprungErlaubt' und meldet einen Absprung
+    /// ueber das Ereignis 'Gesprungen'. Frueher wurde stattdessen SprintSpeed
+    /// verbogen und die Sprungtaste geloescht — beides hing an einer
+    /// Ausfuehrungsreihenfolge, die Unity nicht garantiert.
     ///
-    /// Auf den Player legen (dort, wo auch FirstPersonController haengt).
-    [RequireComponent(typeof(FirstPersonController))]
-    [RequireComponent(typeof(StarterAssetsInputs))]
-    [RequireComponent(typeof(CharacterController))]
+    /// Auf den Player legen.
+    [RequireComponent(typeof(SpielerController))]
     public class Ausdauer : MonoBehaviour
     {
         [Header("Ausdauer")]
@@ -50,28 +48,36 @@ namespace Vrithof.Spieler
 
         float ausdauer;
         bool erschoepft;
+        SpielerController controller;
 
-        FirstPersonController fpc;
-        StarterAssetsInputs eingabe;
-        CharacterController koerper;
-        float vollesTempo;
-        bool warAmBoden = true;
+        /// Ist der Balken leer? Wer erschoepft ist, laeuft im Gehtempo — und
+        /// muss dann auch nur so laut sein.
+        public bool Erschoepft => erschoepft;
 
         void Awake()
         {
-            fpc = GetComponent<FirstPersonController>();
-            eingabe = GetComponent<StarterAssetsInputs>();
-            koerper = GetComponent<CharacterController>();
-            vollesTempo = fpc.SprintSpeed;   // Inspector-Wert merken, wird gleich manipuliert
+            controller = GetComponent<SpielerController>();
             ausdauer = maxAusdauer;
         }
 
+        void OnEnable()
+        {
+            if (controller == null) controller = GetComponent<SpielerController>();
+            controller.Gesprungen += Absprung;
+        }
+
+        void OnDisable()
+        {
+            if (controller != null) controller.Gesprungen -= Absprung;
+        }
+
+        void Absprung() => Verbrauchen(sprungKosten);
+
         void Update()
         {
-            bool bewegtSich = eingabe.move != Vector2.zero;
-            bool sprintet = bewegtSich && eingabe.sprint && !erschoepft;
-
-            if (sprintet)
+            // Der Controller sagt selbst, ob wirklich gerannt wird — geduckt,
+            // gesperrt oder stehend zaehlt nicht.
+            if (controller.Sprintet && !erschoepft)
             {
                 ausdauer -= verbrauchProSekunde * Time.deltaTime;
                 if (ausdauer <= 0f)
@@ -83,20 +89,16 @@ namespace Vrithof.Spieler
             else
             {
                 // Stillstand tankt auf, Gehen haelt kaum mit, Sprint gibt nichts.
-                float rate = bewegtSich ? gehRegeneration : ruheRegeneration;
+                float rate = controller.Tempo > 0.1f ? gehRegeneration : ruheRegeneration;
                 ausdauer = Mathf.Min(maxAusdauer, ausdauer + rate * Time.deltaTime);
                 if (erschoepft && ausdauer >= maxAusdauer * erholungsSchwelle)
                     erschoepft = false;
             }
 
-            fpc.SprintSpeed = erschoepft ? fpc.MoveSpeed : vollesTempo;
-
-            Sprung();
+            // Statt fremde Werte zu verbiegen: zwei Schalter.
+            controller.sprintErlaubt = !erschoepft;
+            controller.sprungErlaubt = Reicht(sprungKosten);
         }
-
-        /// Ist der Balken leer? Wer erschoepft ist, laeuft im Gehtempo — und
-        /// muss dann auch nur so laut sein.
-        public bool Erschoepft => erschoepft;
 
         /// Reicht die Ausdauer fuer eine einzelne Anstrengung?
         public bool Reicht(float menge) => !erschoepft && ausdauer >= menge;
@@ -113,25 +115,6 @@ namespace Vrithof.Spieler
                 erschoepft = true;
             }
             return true;
-        }
-
-        // Der Sprung selbst steckt im Starter-Asset-Controller, den wir nicht
-        // anfassen. Also wird er von aussen erkannt: wer den Boden verlaesst und
-        // dabei nach oben faehrt, ist gesprungen — wer faellt, nicht.
-        //
-        // Reicht die Ausdauer nicht, wird die Sprungtaste geloescht, bevor der
-        // Controller sie liest. Bei ungluecklicher Ausfuehrungsreihenfolge kann
-        // dabei ein einzelner Sprung durchrutschen; das ist es wert, den
-        // Controller in Ruhe zu lassen.
-        void Sprung()
-        {
-            if (eingabe.jump && !Reicht(sprungKosten))
-                eingabe.jump = false;
-
-            bool amBoden = fpc.Grounded;
-            if (warAmBoden && !amBoden && koerper.velocity.y > 0.1f)
-                Verbrauchen(sprungKosten);
-            warAmBoden = amBoden;
         }
 
         void OnGUI()

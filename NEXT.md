@@ -7,14 +7,15 @@ Pause zurückholt._
 
 **Zuletzt gemacht:**
 
-> M3.5 fertig: Nebel im Tag/Nacht-Zyklus (Tag, Dämmerung, Nacht — nachts dichter),
-> Sonne steht nie senkrecht, ACES und Color Adjustments im Volume. Dazu klingen jetzt
-> alle Lärmquellen: Wühlen, Klettern, und Zombies, die an den Brettern arbeiten.
+> Eigener `SpielerController` ersetzt den Starter-Asset-Controller und `Schleichen`.
+> Damit sind die Wandreibung und drei Umwege weg (Ausdauer und Schleichen haben fremde
+> Werte verbogen, die Sprungsperre hing an der Skript-Reihenfolge). Dazu: Debug-Gizmos
+> für Hörweite und Sichtkegel, Treffer-Feedback, und Sicht koppelt an die Tageszeit.
 
 **Läuft der Build?**
 
-> Ja. Die Schlaggeräusche an den Brettern sind der größte Gewinn — man hört im Dunkeln,
-> an welcher Wand sie stehen.
+> Ja. Nach dem Controller-Umbau: `FirstPersonController` und `Schleichen` müssen vom
+> Player-Prefab runter, `SpielerController` drauf, `kameraZiel` auf `PlayerCameraRoot`.
 
 **Als Nächstes dran:**
 
@@ -26,6 +27,10 @@ Pause zurückholt._
 
 **Wo der Hund begraben liegt:**
 
+> **Debug-Ansicht:** Player wählen, Maus über Scene-View, `Shift+F` heftet die Kamera an
+> ihn. Gizmos zeigen Hörweite (Kreis) und Sichtkegel — in der Game-View über den
+> `Gizmos`-Schalter.
+>
 > **Die Atmosphäre wartet auf Verdecker.** Nebel und Sonnenstand sind drin, bringen
 > aber wenig: Lichtstrahlen entstehen nur, wo etwas das Licht unterbricht, und die Welt
 > ist flach und leer. Der Atmosphären-Abend gehört wiederholt, sobald Bäume und echte
@@ -41,13 +46,6 @@ Pause zurückholt._
 >
 > `TageszeitZyklus` stellt `RenderSettings` global um — Game-View im Play beurteilen.
 > Feld heißt jetzt `tagLaengeMinuten`, alter Sekundenwert ging beim Umbenennen verloren.
->
-> Der `FirstPersonController` schleift an Wänden. **Wird nicht repariert** — eigener
-> Controller mit Gewicht kommt später, siehe `02-DESIGN.md` Abschnitt 9.
->
-> Ausdauer blockiert den Sprung, indem sie die Taste löscht. Bei ungünstiger
-> Skript-Reihenfolge kann ein einzelner Sprung durchrutschen — bewusst in Kauf genommen,
-> um das Starter Asset nicht zu forken.
 >
 > Durchsteigen ist ein kontrolliertes Verschieben, kein echtes Klettern.
 > `Assets/_Recovery/` ist ein Unity-Absturz-Artefakt, nicht eingecheckt — prüfen und löschen.

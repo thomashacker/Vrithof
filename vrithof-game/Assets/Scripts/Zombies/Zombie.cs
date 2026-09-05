@@ -49,6 +49,15 @@ namespace Vrithof.Zombies
         public float sichtWinkel = 100f;
         [Tooltip("Er nimmt nur Bewegung wahr. Wer stillsteht, ist fuer ihn nicht da.")]
         public float bewegungsSchwelle = 0.05f;
+        [Tooltip("Augenhoehe ueber dem eigenen Pivot. Der Agent schwebt schon " +
+                 "einen Meter ueber dem Boden, deshalb ist der Wert klein.")]
+        public float augenHoehe = 0.6f;
+        [Tooltip("Anteil der Sichtweite, der in tiefer Nacht uebrig bleibt. " +
+                 "Tagsueber gilt die volle. Damit wird die Fackel zum Handel: " +
+                 "man sieht etwas — und macht sich zu dem, was sie nachts " +
+                 "ueberhaupt noch sehen koennen.")]
+        [Range(0.05f, 1f)]
+        public float nachtSicht = 0.4f;
 
         [Header("Klang")]
         [Tooltip("Leer lassen — dann werden Platzhalter erzeugt.")]
@@ -61,6 +70,11 @@ namespace Vrithof.Zombies
         public float stoehnAbstandMax = 9f;
         [Tooltip("Ab dieser Entfernung ist er nicht mehr zu hoeren.")]
         public float hoerweite = 25f;
+
+        [Header("Debug")]
+        [Tooltip("Blickfeld und aktuelles Ziel als Gizmo. Scene-View, oder " +
+                 "Game-View mit eingeschalteten Gizmos.")]
+        public bool kegelZeigen = true;
 
         [Header("Gesicht")]
         [Tooltip("Klotz an der Vorderseite, damit man die Blickrichtung sieht.")]
@@ -91,10 +105,13 @@ namespace Vrithof.Zombies
         NavMeshAgent agent;
         SpielerLeben opfer;
         Fackel fackel;
+        CharacterController zielKoerper;
+        Zeit.TageszeitZyklus zyklus;
         Openable zielOeffnung;
         Vector3 letztesGeraeusch;
         bool hatGeraeusch;
         float normalTempo;
+        bool siehtGerade;
         float wanderWeiterAb;
         Vector3 zielVorherigePosition;
         AudioSource stimme;
@@ -141,10 +158,13 @@ namespace Vrithof.Zombies
                 if (spieler != null) ziel = spieler.transform;
                 else Debug.LogWarning("Zombie findet keinen Spieler (Tag 'Player').", this);
             }
+            zyklus = FindAnyObjectByType<Zeit.TageszeitZyklus>();
+
             if (ziel != null)
             {
                 opfer = ziel.GetComponentInParent<SpielerLeben>();
                 fackel = ziel.GetComponentInParent<Fackel>();
+                zielKoerper = ziel.GetComponentInParent<CharacterController>();
                 zielVorherigePosition = ziel.position;
             }
         }
@@ -192,7 +212,8 @@ namespace Vrithof.Zombies
             if (Laerm.Lautestes(transform.position, out var gehoert))
                 GeraeuschMerken(gehoert);
 
-            if (Sieht()) GeraeuschMerken(ziel.position);
+            siehtGerade = Sieht();
+            if (siehtGerade) GeraeuschMerken(ziel.position);
 
             if (!hatGeraeusch)
             {
@@ -265,6 +286,15 @@ namespace Vrithof.Zombies
             return transform.position + new Vector3(r.x, 0f, r.y);
         }
 
+        /// Wie weit er gerade wirklich sieht: nachts weniger, mit Fackel des
+        /// Spielers wieder mehr.
+        public float EffektiveSicht()
+        {
+            float hell = zyklus != null ? zyklus.Tageslicht : 1f;
+            float grund = sichtWeite * Mathf.Lerp(nachtSicht, 1f, hell);
+            return grund * (fackel != null ? fackel.SichtFaktor : 1f);
+        }
+
         // Zombies sehen schlecht: kurze Reichweite, breiter aber stumpfer Blick,
         // und nur Bewegung. Wer stillsteht, ist fuer sie nicht vorhanden.
         bool Sieht()
@@ -275,23 +305,66 @@ namespace Vrithof.Zombies
 
             if (weg < bewegungsSchwelle) return false;
 
-            // Wer eine Fackel traegt, ist weiter zu sehen. Das ist der Preis
-            // fuers Sehen — und der Grund, sie manchmal auszumachen.
-            float weite = sichtWeite * (fackel != null ? fackel.SichtFaktor : 1f);
+            float weite = EffektiveSicht();
             if (hin.sqrMagnitude > weite * weite) return false;
 
             hin.y = 0f;
             if (Vector3.Angle(transform.forward, hin) > sichtWinkel * 0.5f) return false;
 
-            // Sichtlinie: Waende und Bretter verdecken. Etwas ueber dem Boden
-            // messen, sonst blockiert der Untergrund selbst.
-            Vector3 auge = transform.position + Vector3.up * 1.2f;
-            Vector3 kopf = ziel.position + Vector3.up * 1.2f;
-            if (Physics.Linecast(auge, kopf, out var sperre, ~0, QueryTriggerInteraction.Ignore)
-                && sperre.collider.GetComponentInParent<SpielerLeben>() == null)
-                return false;
+            return Sichtlinie();
+        }
 
+        // Waende und Bretter verdecken — andere Zombies nicht. Ohne diese
+        // Ausnahme wuerde in einer Horde nur der vorderste etwas sehen.
+        //
+        // Die Zielhoehe folgt der Koerperhoehe des Spielers: geduckt sinkt sie
+        // mit, und damit gibt eine Fensterbruestung tatsaechlich Deckung.
+        bool Sichtlinie()
+        {
+            Vector3 auge = transform.position + Vector3.up * augenHoehe;
+            float kopfHoehe = zielKoerper != null ? zielKoerper.height * 0.8f : 1.6f;
+            Vector3 kopf = ziel.position + Vector3.up * kopfHoehe;
+
+            Vector3 strecke = kopf - auge;
+            float weit = strecke.magnitude;
+            if (weit < 0.01f) return true;
+
+            foreach (var t in Physics.RaycastAll(auge, strecke / weit, weit,
+                                                 ~0, QueryTriggerInteraction.Ignore))
+            {
+                if (t.collider.GetComponentInParent<Zombie>() != null) continue;
+                if (t.collider.GetComponentInParent<SpielerLeben>() != null) continue;
+                return false;
+            }
             return true;
+        }
+
+        void OnDrawGizmos()
+        {
+            if (!kegelZeigen || !Application.isPlaying) return;
+
+            Vector3 auge = transform.position + Vector3.up * augenHoehe;
+
+            // Tageszeit und Fackel verschieben die Sichtweite — der Kegel muss
+            // zeigen, was wirklich gilt, nicht den Inspector-Wert.
+            float weite = EffektiveSicht();
+            Gizmos.color = siehtGerade
+                ? new Color(1f, 0.25f, 0.2f, 0.9f)
+                : new Color(1f, 0.9f, 0.3f, 0.35f);
+            Welt.Debugformen.Sichtkegel(auge, transform.forward, sichtWinkel, weite);
+
+            if (!hatGeraeusch) return;
+
+            // Wohin er gerade unterwegs ist und warum.
+            Gizmos.color = new Color(0.3f, 0.7f, 1f, 0.8f);
+            Gizmos.DrawLine(auge, letztesGeraeusch);
+            Welt.Debugformen.Bodenkreis(letztesGeraeusch, 0.6f, 16);
+
+            if (zielOeffnung != null)
+            {
+                Gizmos.color = new Color(1f, 0.55f, 0.1f, 0.9f);
+                Gizmos.DrawLine(auge, zielOeffnung.transform.position);
+            }
         }
 
         void Stoehnen()

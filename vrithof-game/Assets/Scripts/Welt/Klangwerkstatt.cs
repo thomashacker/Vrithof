@@ -121,6 +121,24 @@ namespace Vrithof.Welt
             return Aus(d, "Stoehnen");
         }
 
+        /// Treffer am eigenen Leib. Tief und kurz — mehr Wucht als Klang.
+        public static AudioClip Treffer()
+        {
+            int n = Rate / 5;                       // 0.2 s
+            var d = new float[n];
+            float glatt = 0f;
+
+            for (int i = 0; i < n; i++)
+            {
+                float t = i / (float)n;
+                float sek = i / (float)Rate;
+                glatt = Mathf.Lerp(glatt, Random.Range(-1f, 1f), 0.18f);
+                float wumms = Mathf.Sin(2f * Mathf.PI * 70f * sek);
+                d[i] = (glatt * 0.45f + wumms * 0.55f) * Mathf.Exp(-t * 12f) * 0.9f;
+            }
+            return Aus(d, "Treffer");
+        }
+
         static AudioClip Aus(float[] daten, string name)
         {
             var clip = AudioClip.Create(name, daten.Length, 1, Rate, false);

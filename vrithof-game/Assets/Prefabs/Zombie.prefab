@@ -155,3 +155,22 @@ MonoBehaviour:
   angriffsReichweite: 1.8
   angriffsIntervall: 1
   schaden: 20
+  schadenAnBarrikade: 10
+  sichtWeite: 25
+  sichtWinkel: 100
+  bewegungsSchwelle: 0.05
+  stoehnKlang: {fileID: 0}
+  schlagKlang: {fileID: 0}
+  lautstaerke: 0.6
+  stoehnAbstandMin: 3
+  stoehnAbstandMax: 9
+  hoerweite: 25
+  kegelZeigen: 1
+  gesichtZeigen: 1
+  wandern: 1
+  wanderTempo: 0.55
+  wanderRadius: 25
+  gehoeftChance: 0.4
+  pauseMin: 2
+  pauseMax: 8
+  oeffnungsUmkreis: 12

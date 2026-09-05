@@ -26,23 +26,38 @@ namespace Vrithof.Spieler
 
         [Header("Licht")]
         public Color flammenFarbe = new Color(1f, 0.72f, 0.36f);
+        [Tooltip("Wie weit das Licht ueberhaupt reicht (Light.range). Am Rand " +
+                 "faellt es auf null ab.")]
         public float reichweite = 12f;
+        [Tooltip("Wie hell es ist (Light.intensity). Zusammen mit der Reichweite: " +
+                 "weit und schwach leuchtet diffus, eng und hell gibt einen Kegel.")]
         public float staerke = 3.5f;
         [Tooltip("Wie stark die Flamme zappelt. 0 = ruhiges Licht.")]
         public float flackern = 0.35f;
 
         [Header("Verraeterisch")]
-        [Tooltip("Faktor auf die Sichtweite der Zombies, solange sie brennt. " +
-                 "Wer Licht traegt, ist weiter zu sehen.")]
-        public float sichtFaktor = 2f;
+        [Tooltip("Faktor auf die Sichtweite der Zombies in tiefer Nacht. " +
+                 "Am hellen Tag faellt er auf 1 — eine Fackel im Sonnenlicht " +
+                 "faellt niemandem auf.")]
+        public float sichtFaktor = 1.5f;
 
         [Header("Anzeige")]
         public bool anzeigen = true;
 
         /// Fuer die Zombies: brennt gerade eine?
         public bool Brennt { get; private set; }
-        /// Faktor, den die Sichtweite abbekommt.
-        public float SichtFaktor => Brennt ? sichtFaktor : 1f;
+        /// Faktor, den die Sichtweite abbekommt — voll in tiefer Nacht, gar
+        /// nicht am hellen Tag. Ohne diese Kopplung wuerde eine Fackel mittags
+        /// genauso verraten wie um Mitternacht.
+        public float SichtFaktor
+        {
+            get
+            {
+                if (!Brennt) return 1f;
+                float hell = zyklus != null ? zyklus.Tageslicht : 0f;
+                return Mathf.Lerp(sichtFaktor, 1f, hell);
+            }
+        }
 
         float rest;              // Spielstunden der brennenden Fackel
         Light flamme;
@@ -145,9 +160,17 @@ namespace Vrithof.Spieler
 
         // Zwei ueberlagerte Sinuswellen plus etwas Zufall — billiger als eine
         // Partikelflamme und in dunkler Umgebung fast so wirksam.
+        //
+        // Reichweite und Farbe werden hier mitgeschrieben, nicht nur einmal beim
+        // Erzeugen: sonst wirkt beim Drehen im Inspector nur die Staerke, und man
+        // sucht den Fehler an der falschen Stelle.
         void Flackern()
         {
             if (flamme == null) return;
+
+            flamme.range = reichweite;
+            flamme.color = flammenFarbe;
+
             rauschen += Time.deltaTime * 9f;
             float zappeln = Mathf.Sin(rauschen) * 0.5f + Mathf.Sin(rauschen * 2.7f) * 0.3f
                           + Random.Range(-0.2f, 0.2f);

@@ -5,6 +5,11 @@ Nur was im Spiel gelandet ist.
 
 ---
 
+## 2026-09-05 — Eigener Player-Controller
+- `SpielerController` ersetzt das Starter Asset und `Schleichen`: Wandreibung weg, Bodenkontakt ohne LayerMask, Ausdauer und Lärm hängen an sauberen Schaltern statt an verbogenen Fremdwerten
+- Debug-Gizmos: Hörweite als Bodenkreis, Sichtkegel je Zombie mit echter Reichweite
+- Treffer-Feedback (roter Schleier und Schlag); Sicht koppelt an die Tageszeit — nachts sehen Zombies schlechter, die Fackel holt es teilweise zurück
+
 ## 2026-09-05 — M3.5: Atmosphären-Abend
 - Nebel im Tag/Nacht-Zyklus: drei Farben (Tag, Dämmerung, Nacht), nachts dichter
 - Sonne steht nie senkrecht (max. 55°) — lange Schatten statt platter Draufsicht

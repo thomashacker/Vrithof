@@ -60,3 +60,17 @@ Feature-Filter — immer beide Fragen stellen:
 
 - Den Gesamtstand mitdenken, nicht nur die aktuelle Frage.
 - Auf Scope Creep und Widersprüche zum Plan hinweisen.
+
+## Was Claude nicht sieht
+
+- **Inspector-Werte.** Im Code stehen nur die Defaults. Was in Prefab und Szene
+  serialisiert ist, gilt zur Laufzeit — und einen Default zu ändern, ändert nichts
+  an bestehenden Instanzen. Claude kann die echten Werte aus den `.prefab`- und
+  `.unity`-Dateien lesen und tut das bei Balance-Fragen, statt zu raten.
+- **Konsole und Compile-Fehler.** Meldungen hierher kopieren.
+- **Den Editor.** Komponenten zuweisen, NavMesh backen, Prefabs anlegen,
+  Volume-Overrides drehen: Handarbeit. Claude sagt, was zu tun ist.
+- **Das laufende Spiel.** Screenshots helfen.
+
+Wenn Claude einen Default im Code ändert, sagt er dazu, ob er im Prefab nachgezogen
+werden muss.

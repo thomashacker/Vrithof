@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5803740631675099698}
   - component: {fileID: 953835414100630877}
-  - component: {fileID: 8007038553942417343}
+  - component: {fileID: 30443856897667913}
   - component: {fileID: 3381769639992891428}
   - component: {fileID: 7910351094715709896}
   - component: {fileID: 3799168366307270155}
@@ -19,11 +19,10 @@ GameObject:
   - component: {fileID: 3701780885336675222}
   - component: {fileID: 1480821725181139882}
   - component: {fileID: 8549450987978562466}
-  - component: {fileID: 3765503421044766849}
   - component: {fileID: 529950229767350785}
   - component: {fileID: 1982602336103481695}
   - component: {fileID: 6497414952544727619}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -72,7 +71,7 @@ CharacterController:
   m_SkinWidth: 0.05
   m_MinMoveDistance: 0
   m_Center: {x: 0, y: 0.93, z: 0}
---- !u!114 &8007038553942417343
+--- !u!114 &30443856897667913
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -81,26 +80,23 @@ MonoBehaviour:
   m_GameObject: {fileID: 863333754217204002}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 55919ac34a26952479f3fc91f777b2fa, type: 3}
+  m_Script: {fileID: 11500000, guid: f9e382ff33e9318438578f56cc21338e, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
-  MoveSpeed: 4
-  SprintSpeed: 6
-  RotationSpeed: 2
-  SpeedChangeRate: 10
-  JumpHeight: 1.2
-  Gravity: -15
-  JumpTimeout: 0.1
-  FallTimeout: 0.15
-  Grounded: 1
-  GroundedOffset: -0.14
-  GroundedRadius: 0.5
-  GroundLayers:
-    serializedVersion: 2
-    m_Bits: 1
-  CinemachineCameraTarget: {fileID: 2340876872840531687}
-  TopClamp: 89
-  BottomClamp: -89
+  m_EditorClassIdentifier: Assembly-CSharp::Vrithof.Spieler.SpielerController
+  gehTempo: 4
+  sprintTempo: 6
+  duckTempo: 1.6
+  beschleunigung: 4
+  sprungHoehe: 1.2
+  schwerkraft: -15
+  sprungPause: 0.1
+  standHoehe: 2
+  duckHoehe: 1.2
+  duckWechsel: 9
+  kameraZiel: {fileID: 1148076288544165665}
+  empfindlichkeit: 1
+  obenGrenze: 89
+  untenGrenze: -89
 --- !u!114 &3381769639992891428
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -248,6 +244,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Vrithof.Spieler.SpielerLeben
   maxLeben: 100
+  flashZeigen: 1
+  flashFarbe: {r: 0.65, g: 0, b: 0, a: 0.4}
+  flashDauer: 0.35
+  trefferKlang: {fileID: 0}
+  lautstaerke: 0.6
+  feedbackAbSchaden: 2
   lebenZeigen: 1
 --- !u!114 &7433237421879490021
 MonoBehaviour:
@@ -296,8 +298,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Vrithof.Spieler.Interaktion
   reichweite: 3
-  bauZeit: 1.5
-  abbauZeit: 1
+  bauZeit: 7
+  abbauZeit: 5
   steigReichweite: 2
   steigDauer: 0.55
   steigAbstand: 1.3
@@ -305,6 +307,8 @@ MonoBehaviour:
   haemmerLaerm: 28
   schlagIntervall: 0.4
   hammerKlang: {fileID: 0}
+  wuehlKlang: {fileID: 0}
+  steigKlang: {fileID: 0}
   lautstaerke: 0.5
   fadenkreuzZeigen: 1
   diagnose: 1
@@ -320,10 +324,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79ebf3b5c5106df45a275a44897216e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Vrithof.Spieler.SpielerLaerm
-  schleichen: 3
-  gehen: 8
-  sprinten: 22
-  springen: 14
+  schleichen: 5
+  gehen: 20
+  sprinten: 30
+  springen: 25
   schrittGehen: 0.5
   schrittSprint: 0.3
   schrittSchleichen: 0.8
@@ -333,21 +337,7 @@ MonoBehaviour:
   lautstaerke: 0.5
   balkenZeigen: 1
   balkenMaximum: 30
---- !u!114 &3765503421044766849
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 863333754217204002}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: efbd992066ee9d142946ed081be78de0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Vrithof.Spieler.Schleichen
-  duckHoehe: 1.2
-  duckTempo: 1.6
-  uebergang: 9
+  kreisZeigen: 1
 --- !u!114 &529950229767350785
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -382,10 +372,10 @@ MonoBehaviour:
   vorrat: 1
   brenndauerStunden: 6
   flammenFarbe: {r: 1, g: 0.72, b: 0.36, a: 1}
-  reichweite: 12
-  staerke: 3.5
+  reichweite: 18
+  staerke: 4
   flackern: 0.35
-  sichtFaktor: 2
+  sichtFaktor: 2.5
   anzeigen: 1
 --- !u!114 &6497414952544727619
 MonoBehaviour:
@@ -402,7 +392,7 @@ MonoBehaviour:
   hatAxt: 0
   maxSchaerfe: 25
   schaerfe: 0
-  tempoFaktor: 3
+  tempoFaktor: 4
   anzeigen: 1
 --- !u!1 &1148076288544165665
 GameObject:
@@ -585,7 +575,7 @@ GameObject:
   - component: {fileID: 8127252188577730878}
   - component: {fileID: 2255260931819954829}
   - component: {fileID: 7124969906610946018}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: Capsule
   m_TagString: Untagged
   m_Icon: {fileID: 0}

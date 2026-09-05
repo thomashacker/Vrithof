@@ -1,5 +1,4 @@
 using UnityEngine;
-using StarterAssets;
 using Vrithof.Welt;
 
 namespace Vrithof.Spieler
@@ -12,7 +11,7 @@ namespace Vrithof.Spieler
     /// alles hinter sich her. Wer steht, verschwindet.
     ///
     /// Auf den Player legen.
-    [RequireComponent(typeof(StarterAssetsInputs))]
+    [RequireComponent(typeof(SpielerController))]
     public class SpielerLaerm : MonoBehaviour
     {
         [Header("Lautstaerke (zugleich Reichweite in Metern)")]
@@ -44,23 +43,36 @@ namespace Vrithof.Spieler
         [Tooltip("Bei welcher Staerke der Balken voll ist. Muss ueber dem " +
                  "lautesten Geraeusch liegen, sonst schlaegt er nur noch an.")]
         public float balkenMaximum = 30f;
+        [Tooltip("Zeigt die aktuelle Hoerweite als Kreis am Boden. Nur Gizmo, " +
+                 "also Scene-View oder Game-View mit eingeschalteten Gizmos.")]
+        public bool kreisZeigen = true;
 
-        StarterAssetsInputs eingabe;
-        Schleichen geduckt;
-        Ausdauer kraft;
+        SpielerController controller;
         AudioSource quelle;
         float naechsterSchritt;
-        bool warInDerLuft;
 
         // Wie laut der letzte Schritt war — nur fuer die Anzeige.
         float letzteStaerke;
         float letzteStaerkeBis;
 
+        void OnEnable()
+        {
+            if (controller == null) controller = GetComponent<SpielerController>();
+            controller.Gesprungen += Absprung;
+        }
+
+        void OnDisable()
+        {
+            if (controller != null) controller.Gesprungen -= Absprung;
+        }
+
+        // Der Absprung selbst ist laut genug. Auf die Landung zu warten war nur
+        // ein Umweg, weil der fremde Controller nichts gemeldet hat.
+        void Absprung() => Ausloesen(springen, sprungKlang);
+
         void Awake()
         {
-            eingabe = GetComponent<StarterAssetsInputs>();
-            geduckt = GetComponent<Schleichen>();
-            kraft = GetComponent<Ausdauer>();
+            controller = GetComponent<SpielerController>();
             quelle = GetComponent<AudioSource>();
             if (quelle == null) quelle = gameObject.AddComponent<AudioSource>();
             quelle.playOnAwake = false;
@@ -73,40 +85,24 @@ namespace Vrithof.Spieler
 
         void Update()
         {
-            Springen();
             Schritte();
 
             if (Time.time > letzteStaerkeBis) letzteStaerke = 0f;
         }
 
-        void Springen()
-        {
-            // Der Controller haelt selbst fest, ob er den Boden beruehrt.
-            var fpc = GetComponent<FirstPersonController>();
-            if (fpc == null) return;
-
-            if (!fpc.Grounded) { warInDerLuft = true; return; }
-            if (!warInDerLuft) return;
-
-            warInDerLuft = false;         // gerade aufgekommen
-            Ausloesen(springen, sprungKlang);
-        }
-
         void Schritte()
         {
-            bool laeuft = eingabe.move != Vector2.zero;
-            if (!laeuft)
+            if (controller.Tempo < 0.1f)
             {
                 naechsterSchritt = 0f;    // beim Anhalten sofort wieder bereit
                 return;
             }
 
-            bool schleicht = geduckt != null && geduckt.IstGeduckt;
-            // Nicht die Taste zaehlt, sondern ob wirklich gerannt wird. Wer
-            // erschoepft ist, laeuft im Gehtempo und darf sich nicht durch
-            // Sprintlaerm verraten, den er gar nicht verursacht.
-            bool erschoepft = kraft != null && kraft.Erschoepft;
-            bool rennt = eingabe.sprint && !schleicht && !erschoepft;
+            // Nicht die Taste zaehlt, sondern was der Controller tatsaechlich
+            // tut. Wer erschoepft ist, laeuft im Gehtempo und darf sich nicht
+            // durch Sprintlaerm verraten, den er gar nicht verursacht.
+            bool schleicht = controller.IstGeduckt;
+            bool rennt = controller.Sprintet;
             if (Time.time < naechsterSchritt) return;
 
             float takt = rennt ? schrittSprint : schleicht ? schrittSchleichen : schrittGehen;
@@ -133,6 +129,38 @@ namespace Vrithof.Spieler
                 // Leiser Krach klingt auch leiser.
                 float anteil = Mathf.Clamp01(staerke / Mathf.Max(1f, sprinten));
                 quelle.PlayOneShot(klang, lautstaerke * Mathf.Max(0.25f, anteil));
+            }
+        }
+
+        /// Wie weit man gerade zu hoeren waere. Auch im Stehen abfragbar — der
+        /// Gizmo soll die Reichweite zeigen, nicht auf den naechsten Schritt warten.
+        public float AktuelleReichweite()
+        {
+            if (controller == null || controller.Tempo < 0.1f) return 0f;
+            return controller.Sprintet ? sprinten
+                 : controller.IstGeduckt ? schleichen
+                 : gehen;
+        }
+
+        void OnDrawGizmos()
+        {
+            if (!kreisZeigen || !Application.isPlaying) return;
+
+            // Was gerade verursacht wird, und daneben blass der letzte Ausschlag —
+            // sonst waere der Hammer nie zu sehen, weil er kein Dauerzustand ist.
+            float jetzt = AktuelleReichweite();
+            if (jetzt > 0f)
+            {
+                Gizmos.color = Color.Lerp(new Color(0.3f, 0.9f, 0.3f, 0.9f),
+                                          new Color(1f, 0.3f, 0.2f, 0.9f),
+                                          Mathf.Clamp01(jetzt / Mathf.Max(1f, balkenMaximum)));
+                Welt.Debugformen.Bodenkreis(transform.position, jetzt);
+            }
+
+            if (letzteStaerke > jetzt)
+            {
+                Gizmos.color = new Color(1f, 0.85f, 0.2f, 0.5f);
+                Welt.Debugformen.Bodenkreis(transform.position, letzteStaerke);
             }
         }
 

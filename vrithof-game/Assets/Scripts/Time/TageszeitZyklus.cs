@@ -66,6 +66,9 @@ namespace Vrithof.Zeit
 
         public float Stunde => stunde;
         public int Tag => tag;
+        /// 1 bei vollem Tag, 0 in tiefer Nacht, dazwischen die Daemmerung.
+        /// Wer sich danach richten will (die Fackel tut es), fragt hier.
+        public float Tageslicht { get; private set; } = 1f;
         public bool IstNacht => stunde >= nachtBeginn || stunde < nachtEnde;
 
         float stunde;   // 0..24
@@ -127,6 +130,7 @@ namespace Vrithof.Zeit
 
             // Tagesfaktor: 1 tagsueber, weicher Uebergang in der Daemmerung, 0 nachts.
             float licht = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(-0.15f, 0.25f, hoehe));
+            Tageslicht = licht;
 
             sonne.intensity = licht * maxIntensitaet;   // Licht bleibt aktiv -> Skybox behaelt Sonnenrichtung
             RenderSettings.ambientLight = Color.Lerp(nachtAmbient, tagAmbient, licht);
