@@ -163,11 +163,10 @@ namespace Vrithof.Zeit
             if (!uhrZeigen) return;
             int h = Mathf.FloorToInt(stunde);
             int m = Mathf.FloorToInt((stunde - h) * 60f);
-            var style = new GUIStyle(GUI.skin.label) { fontSize = 20 };
-            style.normal.textColor = Color.white;
-            if (IstNacht) style.normal.textColor = new Color(0.6f, 0.75f, 1f);
+            var farbe = IstNacht ? new Color(0.6f, 0.75f, 1f) : Color.white;
             GUI.Label(new Rect(12, 8, 300, 30),
-                      $"Tag {tagZaehler} · {h:00}:{m:00}{(IstNacht ? "  ☾" : "")}", style);
+                      $"Tag {tagZaehler} · {h:00}:{m:00}{(IstNacht ? "  ☾" : "")}",
+                      Welt.Anzeige.Zahl(farbe));
         }
     }
 }

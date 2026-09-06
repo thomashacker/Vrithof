@@ -301,11 +301,12 @@ MonoBehaviour:
   reichweite: 3
   bauZeit: 4
   abbauZeit: 5
+  tippSchwelle: 0.25
   steigReichweite: 2
   steigDauer: 0.55
   steigAbstand: 1.3
-  steigLaerm: 12
-  haemmerLaerm: 28
+  steigLaerm: 10
+  haemmerLaerm: 20
   schlagIntervall: 0.4
   hammerKlang: {fileID: 0}
   wuehlKlang: {fileID: 0}
@@ -325,10 +326,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79ebf3b5c5106df45a275a44897216e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Vrithof.Spieler.SpielerLaerm
-  schleichen: 5
-  gehen: 20
-  sprinten: 30
-  springen: 25
+  schleichen: 1.5
+  gehen: 8
+  sprinten: 12
+  springen: 10
   schrittGehen: 0.5
   schrittSprint: 0.3
   schrittSchleichen: 0.8

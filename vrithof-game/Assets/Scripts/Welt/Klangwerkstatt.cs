@@ -155,6 +155,42 @@ namespace Vrithof.Welt
             return Aus(d, "Knistern");
         }
 
+        /// Hieb ins Leere — das Rauschen der Klinge durch die Luft.
+        public static AudioClip Hieb()
+        {
+            int n = Rate / 5;                       // 0.2 s
+            var d = new float[n];
+            float glatt = 0f;
+
+            for (int i = 0; i < n; i++)
+            {
+                float t = i / (float)n;
+                glatt = Mathf.Lerp(glatt, Random.Range(-1f, 1f), 0.5f);
+                // An- und abschwellen: das macht aus Rauschen einen Schwung.
+                d[i] = glatt * Mathf.Sin(Mathf.PI * t) * 0.4f;
+            }
+            return Aus(d, "Hieb");
+        }
+
+        /// Treffer auf Koerper. Dumpf und feucht statt hart — der Unterschied
+        /// zum Holzschlag ist, dass hier nichts nachklingt.
+        public static AudioClip Fleischtreffer()
+        {
+            int n = Rate / 7;                       // 0.14 s
+            var d = new float[n];
+            float glatt = 0f;
+
+            for (int i = 0; i < n; i++)
+            {
+                float t = i / (float)n;
+                float sek = i / (float)Rate;
+                glatt = Mathf.Lerp(glatt, Random.Range(-1f, 1f), 0.16f);   // sehr dumpf
+                float wumms = Mathf.Sin(2f * Mathf.PI * 95f * sek);
+                d[i] = (glatt * 0.7f + wumms * 0.3f) * Mathf.Exp(-t * 26f) * 0.85f;
+            }
+            return Aus(d, "Fleischtreffer");
+        }
+
         /// Treffer am eigenen Leib. Tief und kurz — mehr Wucht als Klang.
         public static AudioClip Treffer()
         {

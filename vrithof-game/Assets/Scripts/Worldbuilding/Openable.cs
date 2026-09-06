@@ -65,6 +65,16 @@ namespace Vrithof.Worldbuilding
                  "bleibt daneben ein Streifen begehbar.")]
         public float sperreTiefe = 0.6f;
 
+        [Header("Tuerblatt")]
+        [Tooltip("Dicke des Blatts. Nur wirksam, wenn grundHP ueber 0 liegt — " +
+                 "ein Fenster hat kein Blatt.")]
+        public float blattDicke = 0.1f;
+        [Tooltip("Wie weit die Tuer aufschwingt, in Grad.")]
+        public float oeffnungsWinkel = 95f;
+        [Tooltip("Wie schnell sie schwingt.")]
+        public float schwingTempo = 6f;
+        public Material blattMaterial;
+
         [Header("Hervorhebung")]
         [Tooltip("Staerke des Rahmens, der beim Anvisieren aufleuchtet.")]
         public float rahmenDicke = 0.06f;
@@ -82,12 +92,24 @@ namespace Vrithof.Worldbuilding
         GameObject rahmen;
         NavMeshLink link;
         NavMeshObstacle sperre;
+        Transform tuerAngel;
+        Collider blattCollider;
+        float schwung;
         int bretter;
         float brettRest;    // HP des obersten stehenden Bretts
         float grundRest;    // HP der Grundsubstanz
 
-        /// Koennen Zombies hier durch? Erst wenn kein Brett und keine Substanz mehr steht.
-        public bool IstOffen => bretter == 0 && grundRest <= 0f;
+        /// Koennen Zombies hier durch? Bretter sperren immer. Ein Tuerblatt
+        /// sperrt nur, solange es steht *und* zu ist — wer seine Tuer offen
+        /// laesst, laedt sie ein.
+        public bool IstOffen => bretter == 0 && (grundRest <= 0f || TuerOffen);
+
+        /// Hat diese Oeffnung ein Blatt, das man auf- und zumachen kann?
+        public bool HatTuerblatt => grundHP > 0f;
+        /// Steht sie offen?
+        public bool TuerOffen { get; private set; }
+        /// Laesst sie sich gerade bewegen? Nicht, wenn zugenagelt oder zerschlagen.
+        public bool TuerBedienbar => HatTuerblatt && grundRest > 0f && bretter == 0;
         /// Passt noch ein Brett drauf?
         public bool KannVerstaerken => bretter < maxBretter;
         public int Bretter => bretter;
@@ -98,6 +120,7 @@ namespace Vrithof.Worldbuilding
             ZielflaecheErzeugen();
             BretterErzeugen();
             RahmenErzeugen();
+            TuerblattErzeugen();
             LinkErzeugen();
             SperreErzeugen();
             bretter = Mathf.Clamp(startBretter, 0, maxBretter);
@@ -136,6 +159,56 @@ namespace Vrithof.Worldbuilding
             }
 
             return false;
+        }
+
+        /// Auf- oder zumachen. Gibt false zurueck, wenn das gerade nicht geht.
+        public bool TuerUmschalten()
+        {
+            if (!TuerBedienbar) return false;
+            TuerOffen = !TuerOffen;
+            BlattFreigeben();
+            DurchgangAktualisieren();
+            return true;
+        }
+
+        // Offen heisst durchlaessig, nicht unsichtbar fuer den Strahl: als
+        // Trigger laesst das Blatt jeden durch, bleibt aber anvisierbar. Sonst
+        // muesste man zum Schliessen in die leere Oeffnung zielen statt auf die
+        // Tuer, die man vor sich sieht.
+        void BlattFreigeben()
+        {
+            if (blattCollider == null) return;
+            blattCollider.isTrigger = TuerOffen;
+        }
+
+        // Ein Blatt an einer Angel am linken Rand. Ohne das sieht man der Tuer
+        // nicht an, dass sie zu ist — im Blockout ist sie sonst nur ein Loch,
+        // durch das Zombies unerklaerlicherweise nicht gehen.
+        void TuerblattErzeugen()
+        {
+            if (!HatTuerblatt) return;
+
+            var angel = new GameObject("Tuerangel");
+            angel.transform.SetParent(transform, false);
+            angel.transform.localPosition = new Vector3(-slot.width * 0.5f, 0f, 0f);
+            tuerAngel = angel.transform;
+
+            var blatt = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            blatt.name = "Tuerblatt";
+            blatt.transform.SetParent(tuerAngel, false);
+            blatt.transform.localPosition = new Vector3(slot.width * 0.5f, 0f, 0f);
+            blatt.transform.localScale = new Vector3(slot.width, slot.height, blattDicke);
+            if (blattMaterial) blatt.GetComponent<Renderer>().sharedMaterial = blattMaterial;
+            blattCollider = blatt.GetComponent<Collider>();
+        }
+
+        void Update()
+        {
+            if (tuerAngel == null) return;
+
+            float ziel = TuerOffen ? oeffnungsWinkel : 0f;
+            schwung = Mathf.Lerp(schwung, ziel, Time.deltaTime * schwingTempo);
+            tuerAngel.localRotation = Quaternion.Euler(0f, schwung, 0f);
         }
 
         /// Brett-HP von aussen setzen. Der GehoeftZustand macht das fuers ganze
@@ -181,7 +254,12 @@ namespace Vrithof.Worldbuilding
             if (grundRest > 0f)
             {
                 grundRest = Mathf.Max(0f, grundRest - menge);
-                if (grundRest <= 0f) DurchgangAktualisieren();
+                if (grundRest > 0f) return;
+
+                // Zerschlagen: das Blatt ist weg, nicht bloss offen. Eine
+                // Geistertuer, die noch im Rahmen haengt, waere irrefuehrend.
+                if (tuerAngel != null) tuerAngel.gameObject.SetActive(false);
+                DurchgangAktualisieren();
             }
         }
 

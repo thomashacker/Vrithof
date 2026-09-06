@@ -53,6 +53,18 @@ namespace Vrithof.Worldbuilding
         public int tuerMaxBretter = 4;
         public int fensterMaxBretter = 3;
 
+        [Header("Loot")]
+        [Tooltip("Truhen-Prefab. Wird an die erzeugten Plaetze durchgereicht.")]
+        public GameObject truhenPrefab;
+        [Tooltip("Wie viele moegliche Standorte verteilt werden. Ob dort " +
+                 "tatsaechlich etwas steht, entscheidet die Chance beim Start.")]
+        [Range(0, 6)]
+        public int lootPlaetze = 3;
+        [Range(0f, 1f)]
+        public float lootChance = 0.6f;
+        [Tooltip("Abstand der Plaetze zur Wand.")]
+        public float lootWandAbstand = 0.9f;
+
         [Header("Material (optional, sonst Unity-Standard)")]
         public Material wandMaterial;
         public Material bodenMaterial;
@@ -104,6 +116,54 @@ namespace Vrithof.Worldbuilding
                     new List<Oeffnung> {
                         new Oeffnung { u = 0, breite = innenTuerBreite, bruestung = 0,
                                        hoehe = innenTuerHoehe, art = OpeningKind.Tuer } });
+
+            LootPlaetzeVerteilen();
+        }
+
+        // Kandidaten sind die Ecken — dort steht Gerumpel, nicht mitten im Raum.
+        // Davon wird gemischt und gezogen, damit nicht jedes Gehoeft dieselben
+        // Stellen hat.
+        void LootPlaetzeVerteilen()
+        {
+            if (lootPlaetze <= 0) return;
+
+            float x = breite * 0.5f - lootWandAbstand;
+            float trennung = innenraumBauen ? tiefe * 0.5f - innenraumTiefe : tiefe * 0.5f;
+            float sued = -tiefe * 0.5f + lootWandAbstand;
+            float nord = tiefe * 0.5f - lootWandAbstand;
+
+            var kandidaten = new List<Vector3>
+            {
+                new Vector3(-x, 0f, sued),
+                new Vector3( x, 0f, sued),
+                new Vector3(-x, 0f, trennung - lootWandAbstand),
+                new Vector3( x, 0f, trennung - lootWandAbstand),
+            };
+
+            if (innenraumBauen)
+            {
+                kandidaten.Add(new Vector3(-x, 0f, nord));
+                kandidaten.Add(new Vector3( x, 0f, nord));
+            }
+
+            // Mischen (Fisher-Yates), dann die ersten nehmen.
+            for (int i = kandidaten.Count - 1; i > 0; i--)
+            {
+                int j = Random.Range(0, i + 1);
+                (kandidaten[i], kandidaten[j]) = (kandidaten[j], kandidaten[i]);
+            }
+
+            int wieViele = Mathf.Min(lootPlaetze, kandidaten.Count);
+            for (int i = 0; i < wieViele; i++)
+            {
+                var marker = new GameObject("LootPlatz_" + i);
+                marker.transform.SetParent(transform, false);
+                marker.transform.localPosition = kandidaten[i];
+
+                var platz = marker.AddComponent<LootPlatz>();
+                platz.truhenPrefab = truhenPrefab;
+                platz.chance = lootChance;
+            }
         }
 
         // Zwei Fenster, symmetrisch um die Wandmitte.

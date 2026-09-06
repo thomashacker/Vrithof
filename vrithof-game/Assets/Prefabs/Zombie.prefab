@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 981010482947491287}
   - component: {fileID: 6052528529709300583}
   - component: {fileID: 854967162153012005}
+  - component: {fileID: 8520107626649898052}
   m_Layer: 0
   m_Name: Zombie
   m_TagString: Untagged
@@ -56,9 +57,9 @@ CapsuleCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.5
-  m_Height: 2
+  m_Height: 1.9479636
   m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 0.026017215, z: 0}
 --- !u!195 &981010482947491287
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -93,9 +94,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9bc25ff45e8d0304f85ffe5c6514d62d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Vrithof.Zombies.Zombie
-  ziel: {fileID: 0}
-  zielIntervall: 0.2
-  angriffsReichweite: 2
+  angriffsReichweite: 1.5
   angriffsIntervall: 1
   ausholAnteil: 0.4
   angriffsStarre: 0.7
@@ -103,28 +102,29 @@ MonoBehaviour:
   schwungDauer: 0.18
   schaden: 20
   schadenAnBarrikade: 10
-  sichtWeite: 25
-  sichtWinkel: 100
-  bewegungsSchwelle: 0.05
-  augenHoehe: 0.6
-  nachtSicht: 0.4
-  stoehnKlang: {fileID: 0}
-  schlagKlang: {fileID: 0}
-  schrittKlang: {fileID: 0}
-  schrittWeite: 1.1
-  lautstaerke: 0.6
-  stoehnAbstandMin: 3
-  stoehnAbstandMax: 9
-  hoerweite: 25
-  kegelZeigen: 1
-  gesichtZeigen: 0
+  schlagLaerm: 16
+  schlagToleranz: 1
+  umwegFaktor: 1.8
+  oeffnungsUmkreis: 12
   wandern: 1
   wanderTempo: 0.55
   wanderRadius: 25
   gehoeftChance: 0.4
   pauseMin: 2
   pauseMax: 8
-  oeffnungsUmkreis: 12
+  spurGeduld: 4
+  feststeckZeit: 10
+  stoehnKlang: {fileID: 0}
+  schlagKlang: {fileID: 0}
+  schrittKlang: {fileID: 0}
+  lautstaerke: 0.6
+  stoehnAbstandMin: 3
+  stoehnAbstandMax: 9
+  schrittWeite: 1.1
+  hoerweite: 25
+  gesichtZeigen: 0
+  entscheidungsTakt: 0.2
+  zustandZeigen: 0
 --- !u!114 &854967162153012005
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -141,11 +141,30 @@ MonoBehaviour:
   tempoParameter: Tempo
   schlagAusloeser: Schlag
   schrittfaktorParameter: Schrittfaktor
+  todesAusloeser: Sterben
   schlagClip: {fileID: -203655887218126122, guid: 9b59d45825cc0ca4b81df7e39571edfb, type: 3}
   glaettung: 8
   tempoStreuung: {x: 0.85, y: 1.15}
   schritteAnpassen: 1
   animationsTempo: 1.2
+--- !u!114 &8520107626649898052
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3054395282544753294}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 493c7760d97c9114b9d9d90ccd804f20, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Vrithof.Zombies.ZombieSinne
+  sichtWeite: 25
+  sichtWinkel: 100
+  nachtSicht: 0.4
+  bewegungsSchwelle: 0.05
+  augenHoehe: 0.6
+  taktung: 0.2
 --- !u!1001 &5530045555059859588
 PrefabInstance:
   m_ObjectHideFlags: 0

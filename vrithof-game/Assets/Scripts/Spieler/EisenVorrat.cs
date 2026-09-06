@@ -31,9 +31,8 @@ namespace Vrithof.Spieler
         {
             if (!anzeigen) return;
             // Unter Uhr (8), Leben (34) und Ausdauerbalken (64..74).
-            var style = new GUIStyle(GUI.skin.label) { fontSize = 20 };
-            style.normal.textColor = eisen > 0 ? Color.white : Color.red;
-            GUI.Label(new Rect(12, 80, 300, 30), $"Eisen {eisen}", style);
+            GUI.Label(new Rect(12, 80, 300, 30), "Eisen " + eisen,
+                      Welt.Anzeige.Zahl(eisen > 0 ? Color.white : Color.red));
         }
     }
 }

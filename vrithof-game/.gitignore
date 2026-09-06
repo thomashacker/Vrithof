@@ -18,8 +18,10 @@
 *.blend1
 *.blend1.meta
 
-# MemoryCaptures können riesig werden und sensible Daten enthalten.
+# MemoryCaptures und Profiler-Aufnahmen können riesig werden — ein einzelner
+# Memory-Snapshot sind schnell mehrere Gigabyte.
 /[Mm]emoryCaptures/
+/[Pp]rofilerCaptures/
 
 # Recordings können riesig werden.
 /[Rr]ecordings/

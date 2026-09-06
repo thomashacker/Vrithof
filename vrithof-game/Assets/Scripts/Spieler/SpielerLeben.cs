@@ -75,9 +75,9 @@ namespace Vrithof.Spieler
 
             if (!lebenZeigen) return;
             // Unter der Uhr des Tageszeit-Zyklus.
-            var style = new GUIStyle(GUI.skin.label) { fontSize = 20 };
-            style.normal.textColor = leben > maxLeben * 0.3f ? Color.white : Color.red;
-            GUI.Label(new Rect(12, 34, 300, 30), $"Leben {Mathf.CeilToInt(leben)}", style);
+            var farbe = leben > maxLeben * 0.3f ? Color.white : Color.red;
+            GUI.Label(new Rect(12, 34, 300, 30),
+                      "Leben " + Mathf.CeilToInt(leben), Welt.Anzeige.Zahl(farbe));
         }
 
         void Flash()

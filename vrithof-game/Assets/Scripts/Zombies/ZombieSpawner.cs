@@ -98,8 +98,8 @@ namespace Vrithof.Zombies
             foreach (var z in gespawnt)
             {
                 if (z == null) continue;
-                var verhalten = z.GetComponent<Zombie>();
-                if (verhalten != null) verhalten.GeraeuschVergessen();
+                var sinne = z.GetComponent<ZombieSinne>();
+                if (sinne != null) sinne.Vergessen();
             }
         }
 
@@ -127,8 +127,8 @@ namespace Vrithof.Zombies
             // Sie kommen ja, weil sie etwas gehoert haben. Ohne diesen Startpunkt
             // stuenden sie am Kartenrand und warteten auf ein Geraeusch, das sie
             // aus 40 Metern nie hoeren wuerden.
-            var verhalten = z.GetComponent<Zombie>();
-            if (verhalten != null) verhalten.GeraeuschMerken(mitte);
+            var sinne = z.GetComponent<ZombieSinne>();
+            if (sinne != null) sinne.Merken(mitte, "gemeldet");
         }
     }
 }

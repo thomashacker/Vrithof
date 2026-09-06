@@ -5,6 +5,11 @@ Nur was im Spiel gelandet ist.
 
 ---
 
+## 2026-09-07 — M5b: Nahkampf, Türen, Zustandsmaschine
+- Nahkampf mit Axt: Ausholzeit statt Sofortschaden, Ausdauerkosten, Zombies mit Lebenspunkten, Rückstoß und Leichen
+- Türblatt zum Öffnen und Schließen; Zombies wissen nichts mehr über offene Fenster auf der Rückseite
+- Zombie-Verhalten als Zustandsmaschine (`ZombieSinne` getrennt), Loot-Plätze im GehoeftBuilder, Log-Spam im Animator behoben
+
 ## 2026-09-06 — M5b: Der Zombie
 - Mixamo-Modell statt Kapsel: Animator mit Blend Tree, Tempo und Schrittgeschwindigkeit leiten sich aus einer einzigen Zahl ab
 - Schlag mit Ausholzeit statt Sofortschaden — Ausweichen ist möglich —, Starre aus der Cliplänge und Vorwärtsschub beim Treffer

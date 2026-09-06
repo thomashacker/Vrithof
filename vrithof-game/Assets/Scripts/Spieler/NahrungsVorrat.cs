@@ -79,13 +79,12 @@ namespace Vrithof.Spieler
         {
             if (!anzeigen) return;
             // Unter Uhr (8), Leben (34), Ausdauer (64), Eisen (80), Laerm (108/126).
-            var style = new GUIStyle(GUI.skin.label) { fontSize = 20 };
             float anteil = nahrung / Mathf.Max(1f, maxNahrung);
-            style.normal.textColor = anteil > 0.25f ? Color.white
-                                   : anteil > 0f ? new Color(1f, 0.7f, 0.2f)
-                                   : Color.red;
+            var farbe = anteil > 0.25f ? Color.white
+                      : anteil > 0f ? new Color(1f, 0.7f, 0.2f)
+                      : Color.red;
             GUI.Label(new Rect(12, 146, 300, 30),
-                      $"Nahrung {Mathf.CeilToInt(nahrung)}", style);
+                      "Nahrung " + Mathf.CeilToInt(nahrung), Welt.Anzeige.Zahl(farbe));
         }
     }
 }

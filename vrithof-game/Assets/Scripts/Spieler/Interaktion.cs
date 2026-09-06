@@ -34,6 +34,10 @@ namespace Vrithof.Spieler
                  "Laerm vor einem fremden Haus. Die Axt halbiert das gut.")]
         public float abbauZeit = 7f;
 
+        [Tooltip("Bis zu dieser Haltedauer gilt E als Tippen und oeffnet die Tuer. " +
+                 "Laenger gehalten wird genagelt.")]
+        public float tippSchwelle = 0.25f;
+
         [Header("Durchsteigen")]
         [Tooltip("Wie weit man von der Oeffnung entfernt sein darf, um " +
                  "hindurchzusteigen.")]
@@ -81,6 +85,7 @@ namespace Vrithof.Spieler
         float laufendeDauer = 1f;   // wofuer der Balken gerade steht
         string letzterTreffer = "-";
         float naechsterSchlag;
+        float eSeit = -1f;
         AudioSource quelle;
         SpielerLaerm laerm;
         CharacterController koerper;
@@ -123,6 +128,8 @@ namespace Vrithof.Spieler
             }
             if (truheImVisier != vorherTruhe || ambossImVisier != vorherAmboss)
                 fortschritt = 0f;
+
+            Tuer();
 
             if (feuerImVisier != null) Entzuenden();
             else if (bettImVisier != null)
@@ -285,6 +292,25 @@ namespace Vrithof.Spieler
                        : feuerImVisier != null ? " — Feuerstelle"
                        : "";
             letzterTreffer = $"{treffer.collider.name} ({treffer.distance:0.0} m){was}";
+        }
+
+        // Kurz druecken oeffnet und schliesst die Tuer, halten nagelt. Beides
+        // liegt auf E, weil es dieselbe Hand ist — unterschieden wird ueber die
+        // Haltedauer, und entschieden wird erst beim Loslassen.
+        void Tuer()
+        {
+            if (Keyboard.current == null) return;
+
+            if (Keyboard.current.eKey.wasPressedThisFrame) eSeit = Time.time;
+            if (!Keyboard.current.eKey.wasReleasedThisFrame) return;
+
+            float gehalten = Time.time - eSeit;
+            eSeit = -1f;
+
+            if (gehalten > tippSchwelle) return;      // war ein Halten, kein Tippen
+            if (imVisier == null || !imVisier.TuerBedienbar) return;
+
+            imVisier.TuerUmschalten();
         }
 
         // Feuer faengt man mit Feuer: nur mit brennender Fackel. Damit hat die
@@ -478,7 +504,10 @@ namespace Vrithof.Spieler
                 text = $"[E] halten — ausbessern, {imVisier.NaechsteKosten} Eisen";
 
             string zweite = null;
-            if (imVisier.KannAbbauen)
+            if (imVisier.TuerBedienbar)
+                zweite = imVisier.TuerOffen ? "[E] tippen — Tür schließen"
+                                            : "[E] tippen — Tür öffnen";
+            else if (imVisier.KannAbbauen)
             {
                 string werkzeug = axt != null && axt.IstScharf ? " mit Axt" : "";
                 zweite = $"[Q] halten — Brett ab{werkzeug} (+{imVisier.eisenZurueck})";

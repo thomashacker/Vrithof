@@ -32,6 +32,8 @@ namespace Vrithof.Zombies
                  "nicht global, sonst laeuft auch der Schlag in Zeitlupe, " +
                  "wenn der Zombie langsam ist.")]
         public string schrittfaktorParameter = "Schrittfaktor";
+        [Tooltip("Trigger fuer die Todes-Animation.")]
+        public string todesAusloeser = "Sterben";
 
         [Header("Dauer")]
         [Tooltip("Den Attack-Clip hier hineinziehen. Daraus liest der Zombie, wie " +
@@ -67,6 +69,12 @@ namespace Vrithof.Zombies
         int tempoId;
         int schlagId;
         int schrittfaktorId;
+        // Fehlt ein Parameter im Controller, meldet Unity das bei *jedem*
+        // Setzen — mit vollem Stack Trace. Das kostete mehr Leistung als
+        // saemtliche Zombie-Logik zusammen. Also vorher nachsehen.
+        bool hatTempo, hatSchlag, hatSchrittfaktor, hatTod;
+        int todId;
+        ZombieLeben leben;
 
         void Awake()
         {
@@ -77,11 +85,24 @@ namespace Vrithof.Zombies
             tempoId = Animator.StringToHash(tempoParameter);
             schlagId = Animator.StringToHash(schlagAusloeser);
             schrittfaktorId = Animator.StringToHash(schrittfaktorParameter);
+            todId = Animator.StringToHash(todesAusloeser);
+            leben = GetComponent<ZombieLeben>();
+
+            hatTempo = Kennt(tempoParameter);
+            hatSchlag = Kennt(schlagAusloeser);
+            hatSchrittfaktor = Kennt(schrittfaktorParameter);
+            hatTod = Kennt(todesAusloeser);
 
             if (animator == null) return;
 
             // Der Agent bewegt, nicht die Animation.
             animator.applyRootMotion = false;
+
+            // Ausserhalb des Bildes nur noch die Zustandsmaschine mitlaufen
+            // lassen, keine Knochen berechnen. Bei einer Horde ist das der
+            // groesste Einzelposten — und niemand sieht, was hinter einem
+            // passiert.
+            animator.cullingMode = AnimatorCullingMode.CullUpdateTransforms;
 
             // Jeder Zombie laeuft ein bisschen anders und faengt woanders an.
             streuung = Random.Range(tempoStreuung.x, tempoStreuung.y);
@@ -89,25 +110,53 @@ namespace Vrithof.Zombies
             animator.Update(Random.Range(0f, 1f));
         }
 
+        // Einmal beim Start nachsehen, was der Controller ueberhaupt kennt.
+        // Fehlt etwas, sagt es das einmal — nicht sechzigmal pro Sekunde.
+        bool Kennt(string name)
+        {
+            if (animator == null || animator.runtimeAnimatorController == null) return false;
+
+            foreach (var p in animator.parameters)
+                if (p.name == name) return true;
+
+            Debug.LogWarning($"ZombieAnimation: Parameter '{name}' fehlt im Animator " +
+                             $"Controller. Wird uebersprungen.", this);
+            return false;
+        }
+
         void OnEnable()
         {
             if (zombie == null) zombie = GetComponent<Zombie>();
             zombie.Zugeschlagen += Schlag;
+
+            if (leben == null) leben = GetComponent<ZombieLeben>();
+            if (leben != null) leben.Gestorben += Tod;
         }
 
         void OnDisable()
         {
             if (zombie != null) zombie.Zugeschlagen -= Schlag;
+            if (leben != null) leben.Gestorben -= Tod;
+        }
+
+        void Tod()
+        {
+            if (animator == null) return;
+            // Wieder auf normale Geschwindigkeit: der Schrittfaktor gilt nur
+            // fuer den Lauf-State, aber die Streuung wirkt global weiter.
+            if (hatTempo) animator.SetFloat(tempoId, 0f);
+            if (hatTod) animator.SetTrigger(todId);
         }
 
         void Schlag()
         {
-            if (animator != null) animator.SetTrigger(schlagId);
+            if (animator != null && hatSchlag) animator.SetTrigger(schlagId);
         }
 
         void Update()
         {
             if (animator == null) return;
+            if (leben != null && leben.Tot) return;   // eine Leiche laeuft nicht mehr
 
             Vector3 flach = agent.velocity;
             flach.y = 0f;
@@ -117,7 +166,9 @@ namespace Vrithof.Zombies
             // eingestellt sind. Eine Zahl, eine Stelle.
             float anteil = flach.magnitude / Mathf.Max(0.1f, zombie.NormalTempo);
             gezeigtesTempo = Mathf.Lerp(gezeigtesTempo, anteil, Time.deltaTime * glaettung);
-            animator.SetFloat(tempoId, gezeigtesTempo);
+            if (hatTempo) animator.SetFloat(tempoId, gezeigtesTempo);
+
+            if (!hatSchrittfaktor) return;
 
             if (!schritteAnpassen)
             {

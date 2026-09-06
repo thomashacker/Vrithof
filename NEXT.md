@@ -7,23 +7,33 @@ Pause zurückholt._
 
 **Zuletzt gemacht:**
 
-> **Der Zombie ist fertig.** Mixamo-Modell statt Kapsel, Animator mit Blend Tree,
-> Schlag mit Ausholzeit und Vorwärtsschub, und der Kopf folgt dir per Unity-Blick-IK.
-> Davor: Schlafsystem, Feuerstellen, Wegenetz, Weltgrenze.
+> **M5b fertig.** Nahkampf mit der Axt (Ausholzeit, Ausdauerkosten, Zombies mit
+> Lebenspunkten und Leichen), Türblatt zum Auf- und Zumachen, Loot-Plätze im
+> GehoeftBuilder. Das Zombie-Verhalten ist eine Zustandsmaschine geworden und
+> `ZombieSinne` steckt in einer eigenen Datei.
 
 **Läuft der Build?**
 
-> Ja. Der Zombie sieht endlich aus wie einer.
+> Ja, und flüssig — auch mit 150 Zombies im Stresstest.
 
 **Als Nächstes dran:**
 
-> **Rest von M5b:** Nahkampf mit Ausdauer und Verletzung (Axt ist da), Arme greifen
-> per `TwoBoneIKConstraint`, Grab-Mechanik. Kampf-Modell nach Zomboid: einer
-> handhabbar, zwei gefährlich — entsteht von allein, wenn ein Schlag Ausholzeit braucht.
-> Alternativ die **Blender-Spur** (Gehöft-Kit, Verdecker) oder das **GATE**.
+> **Das GATE.** Drei Abende richtig spielen, dann die fünf Fragen aus `02-DESIGN.md`
+> Abschnitt 5 ehrlich beantworten. Alle Meilensteine sind durch.
+> Offen geblieben aus M5b: Arme greifen per `TwoBoneIKConstraint`, Grab-Mechanik.
+> Alternativ die **Blender-Spur** (Gehöft-Kit, Verdecker).
 
 **Wo der Hund begraben liegt:**
 
+> **Debug-Anzeigen kosten Leistung.** `zustandZeigen` am Zombie-Prefab und die
+> Gizmos in der Game-View spürbar ausschalten, wenn es flüssig laufen soll —
+> `Handles.Label` ist teuer. Beim Messen daran denken: `EditorLoop` war 68 % der
+> Frame-Zeit und fällt im Build komplett weg.
+>
+> **Fehlende Animator-Parameter loggen jeden Frame** — das kostete mehr als die
+> gesamte übrige Spiellogik. `ZombieAnimation` prüft sie jetzt beim Start und
+> warnt einmal. Wenn eine Warnung kommt: Parameter im Controller nachtragen.
+>
 > **Editor-Setup am Zombie, das man nach einer Pause nicht mehr weiß:**
 > Am Animator-Layer muss **IK Pass** an sein, sonst dreht sich der Kopf nicht.
 > Blend-Tree-Thresholds sind **0 und 1** (der Parameter ist der Anteil am Grundtempo,
@@ -68,4 +78,4 @@ Pause zurückholt._
 
 ---
 
-**Aktueller Meilenstein:** offen — Blender-Spur, M5b oder GATE
+**Aktueller Meilenstein:** GATE
