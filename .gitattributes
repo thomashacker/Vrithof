@@ -1,0 +1,11 @@
+# Git LFS für große Binärdateien.
+# Unity-Projekte sammeln davon schnell mehr, als GitHub direkt annimmt —
+# das Limit liegt bei 100 MB pro Datei.
+*.fbx  filter=lfs diff=lfs merge=lfs -text
+*.blend filter=lfs diff=lfs merge=lfs -text
+
+# Szenen und Prefabs sind YAML und sollen lesbar diffbar bleiben.
+*.unity   text
+*.prefab  text
+*.asset   text
+*.mat     text

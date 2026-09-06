@@ -7,26 +7,35 @@ Pause zurückholt._
 
 **Zuletzt gemacht:**
 
-> Nacht-Runde: Schlafsystem (Bett, Zeitraffer, Aufwachen bei Zombie-Nähe), Feuerstellen
-> zum Anzünden (Wegmarke *und* Lockmittel), `Wegenetz` als Autoren-Werkzeug, `Weltgrenze`
-> auf der Boden-Plane. Dazu Zombie-Schritte, Knistern, und die Nahrungsbalance neu
-> gerechnet — der Tagesbedarf war fast so groß wie die Magenkapazität.
+> **Der Zombie ist fertig.** Mixamo-Modell statt Kapsel, Animator mit Blend Tree,
+> Schlag mit Ausholzeit und Vorwärtsschub, und der Kopf folgt dir per Unity-Blick-IK.
+> Davor: Schlafsystem, Feuerstellen, Wegenetz, Weltgrenze.
 
 **Läuft der Build?**
 
-> Ja. Deutlich besser spielbar — Orientierung nachts über Feuerstellen und Wege,
-> Schlafen nimmt die Wartezeit.
+> Ja. Der Zombie sieht endlich aus wie einer.
 
 **Als Nächstes dran:**
 
-> **M5b, und darin zuerst der Mixamo-Rig.** Package `com.unity.animation.rigging`
-> installieren, Zombie aus Kapsel zu echtem Modell machen (Idle/Walk/Attack als
-> Humanoid), dann IK-Layer. Der Nahkampf kommt danach — Kampf zuerst zu bauen kann
-> den Loop kaputtmachen.
+> **Rest von M5b:** Nahkampf mit Ausdauer und Verletzung (Axt ist da), Arme greifen
+> per `TwoBoneIKConstraint`, Grab-Mechanik. Kampf-Modell nach Zomboid: einer
+> handhabbar, zwei gefährlich — entsteht von allein, wenn ein Schlag Ausholzeit braucht.
 > Alternativ die **Blender-Spur** (Gehöft-Kit, Verdecker) oder das **GATE**.
 
 **Wo der Hund begraben liegt:**
 
+> **Editor-Setup am Zombie, das man nach einer Pause nicht mehr weiß:**
+> Am Animator-Layer muss **IK Pass** an sein, sonst dreht sich der Kopf nicht.
+> Blend-Tree-Thresholds sind **0 und 1** (der Parameter ist der Anteil am Grundtempo,
+> nicht m/s). `Schrittfaktor` hängt als **Speed Multiplier am Lauf-State**, nicht global.
+> Mixamo-Animationen brauchen **Bake Into Pose** für Rotation, Y und XZ (Based Upon:
+> Center of Mass) — oder gleich „In Place" beim Download.
+> Tempo wird **nur** am `NavMeshAgent → Speed` eingestellt, alles andere leitet sich ab.
+>
+> **Git LFS** ist für `*.fbx` und `*.blend` eingerichtet. GitHub nimmt keine Dateien
+> über 100 MB direkt an. `Zombie Walk.fbx` ist versehentlich *mit* Skin geladen (106 MB
+> statt 0,7 MB) — bei Gelegenheit „Without Skin" neu holen.
+>
 > **Debug-Ansicht:** Player wählen, Maus über Scene-View, `Shift+F` heftet die Kamera an
 > ihn. Gizmos zeigen Hörweite (Kreis) und Sichtkegel — in der Game-View über den
 > `Gizmos`-Schalter.

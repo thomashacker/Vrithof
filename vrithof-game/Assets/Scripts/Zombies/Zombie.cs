@@ -1,9 +1,13 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using Vrithof.Spieler;
 using Vrithof.Welt;
 using Vrithof.Worldbuilding;
+// System.Random und UnityEngine.Random beissen sich, sobald 'using System'
+// dabei ist. Der Alias entscheidet das ein fuer alle Mal.
+using Random = UnityEngine.Random;
 
 namespace Vrithof.Zombies
 {
@@ -36,6 +40,20 @@ namespace Vrithof.Zombies
         public float angriffsReichweite = 1.8f;
         [Tooltip("Sekunden zwischen zwei Schlaegen.")]
         public float angriffsIntervall = 1f;
+        [Tooltip("An welcher Stelle der Schlag-Animation die Hand ankommt, als " +
+                 "Anteil ihrer Laenge. Wer bis dahin aus der Reichweite ist, wird " +
+                 "nicht getroffen.")]
+        [Range(0.1f, 0.9f)]
+        public float ausholAnteil = 0.5f;
+        [Tooltip("Rueckfall, falls kein Schlag-Clip an der ZombieAnimation haengt. " +
+                 "Mit Clip wird dessen Laenge genommen.")]
+        public float angriffsStarre = 0.9f;
+        [Tooltip("Wie weit er sich beim Zuschlagen nach vorn wirft. Gibt dem Schlag " +
+                 "Wucht — und macht ihn gefaehrlicher, weil er damit noch trifft, " +
+                 "wenn man knapp ausserhalb steht. 0 schaltet es ab.")]
+        public float schwungWeite = 0.45f;
+        [Tooltip("Ueber wie viele Sekunden der Schub laeuft. Endet mit dem Treffer.")]
+        public float schwungDauer = 0.18f;
         [Tooltip("Schaden pro Schlag auf den Spieler. 20 bei 100 Leben = fuenf Treffer.")]
         public float schaden = 20f;
         [Tooltip("Schaden pro Schlag auf eine Barrikade. Bewusst niedriger: " +
@@ -114,12 +132,29 @@ namespace Vrithof.Zombies
         /// selbst an, statt dass ein Manager alle kennen muss.
         public static readonly List<Zombie> Alle = new List<Zombie>();
 
+        /// Das Tempo aus dem NavMeshAgent, wie es beim Start stand. Beim Wandern
+        /// wird der Agent gedrosselt, deshalb taugt agent.speed nicht als Bezug.
+        public float NormalTempo => normalTempo;
+
+        /// Feuert bei jedem Schlag — egal ob gegen Barrikade oder Spieler.
+        /// Daran haengt die Animation, damit sie nichts selbst entscheiden muss.
+        public event Action Zugeschlagen;
+
         void OnEnable() { Alle.Add(this); }
-        void OnDisable() { Alle.Remove(this); }
+
+        void OnDisable()
+        {
+            Alle.Remove(this);
+            // Sonst bliebe ein mitten im Schlag deaktivierter Zombie fuer immer
+            // stehen, wenn er wieder aktiviert wird.
+            schlaegtGerade = false;
+            if (agent != null && agent.isOnNavMesh) agent.isStopped = false;
+        }
 
         NavMeshAgent agent;
         SpielerLeben opfer;
         Fackel fackel;
+        ZombieAnimation darstellung;
         CharacterController zielKoerper;
         Zeit.TageszeitZyklus zyklus;
         Openable zielOeffnung;
@@ -135,6 +170,7 @@ namespace Vrithof.Zombies
         float strecke;
         float naechsteAktualisierung;
         float naechsterSchlag;
+        bool schlaegtGerade;
         NavMeshPath pfad;   // erst in Awake — im Konstruktor verbietet Unity das
 
         void Awake()
@@ -142,6 +178,7 @@ namespace Vrithof.Zombies
             agent = GetComponent<NavMeshAgent>();
             pfad = new NavMeshPath();
             normalTempo = agent.speed;
+            darstellung = GetComponent<ZombieAnimation>();
 
             if (stoehnKlang == null) stoehnKlang = Klangwerkstatt.Stoehnen();
             if (schlagKlang == null) schlagKlang = Klangwerkstatt.HolzSchlag();
@@ -442,21 +479,80 @@ namespace Vrithof.Zombies
 
         void Zuschlagen()
         {
-            if (Time.time < naechsterSchlag) return;
+            if (schlaegtGerade || Time.time < naechsterSchlag) return;
 
-            if (zielOeffnung != null)
+            bool gegenOeffnung = zielOeffnung != null;
+            Vector3 zielPunkt = gegenOeffnung ? zielOeffnung.transform.position : ziel.position;
+
+            if (!gegenOeffnung && opfer == null) return;
+            if (!InReichweite(zielPunkt)) return;
+
+            naechsterSchlag = Time.time + angriffsIntervall;
+            StartCoroutine(Schlagen(gegenOeffnung ? zielOeffnung : null));
+        }
+
+        /// Wie lange ein Schlag dauert. Die Animation weiss es besser als eine
+        /// Zahl im Inspector — die haette sonst nachgezogen werden muessen, sobald
+        /// jemand den Clip tauscht.
+        float SchlagDauer =>
+            darstellung != null && darstellung.SchlagDauer > 0.01f
+                ? darstellung.SchlagDauer
+                : angriffsStarre;
+
+        // Der Schaden faellt nicht beim Ausholen, sondern wenn die Hand ankommt.
+        // Damit wird Ausweichen moeglich: wer rechtzeitig aus der Reichweite ist,
+        // wird nicht getroffen.
+        //
+        // Eine echte Hitbox an den Haenden waere der teure Weg zum selben
+        // Ergebnis — sie braucht Knochen-Referenzen, Collider und Trigger, und
+        // fuer einen taumelnden Zombie zaehlt am Ende doch nur das Timing.
+        System.Collections.IEnumerator Schlagen(Openable gegen)
+        {
+            schlaegtGerade = true;
+            if (agent.isOnNavMesh) agent.isStopped = true;
+
+            float dauer = SchlagDauer;
+            float bisZumTreffer = dauer * ausholAnteil;
+
+            Zugeschlagen?.Invoke();          // Animation los
+
+            // Richtung jetzt merken: waehrend der Starre dreht der Agent nicht
+            // mehr nach, der Schub soll aber dorthin gehen, wohin er ausholt.
+            Vector3 stossRichtung = StossRichtung(gegen);
+            float schub = Mathf.Min(schwungDauer, bisZumTreffer);
+            float abWann = bisZumTreffer - schub;
+
+            for (float t = 0f; t < bisZumTreffer; t += Time.deltaTime)
             {
-                if (!InReichweite(zielOeffnung.transform.position)) return;
-                naechsterSchlag = Time.time + angriffsIntervall;
-                zielOeffnung.Schaden(schadenAnBarrikade);
-                Schlaggeraeusch();
-                return;
+                // Der Schwung faellt ans Ende des Ausholens, damit er mit dem
+                // Treffer zusammenfaellt statt vorher zu verpuffen.
+                if (schwungWeite > 0f && schub > 0.001f && t >= abWann
+                    && agent.isOnNavMesh)
+                    agent.Move(stossRichtung * (schwungWeite / schub * Time.deltaTime));
+
+                yield return null;
             }
 
-            if (opfer == null || !InReichweite(ziel.position)) return;
-            naechsterSchlag = Time.time + angriffsIntervall;
-            opfer.Schaden(schaden);
-            Schlaggeraeusch();
+            // Erst jetzt zaehlt, wo alle stehen.
+            if (gegen != null)
+            {
+                if (InReichweite(gegen.transform.position))
+                {
+                    gegen.Schaden(schadenAnBarrikade);
+                    Schlaggeraeusch();
+                }
+            }
+            else if (opfer != null && ziel != null && InReichweite(ziel.position))
+            {
+                opfer.Schaden(schaden);
+                Schlaggeraeusch();
+            }
+
+            float rest = dauer - bisZumTreffer;
+            if (rest > 0f) yield return new WaitForSeconds(rest);
+
+            if (agent.isOnNavMesh) agent.isStopped = false;
+            schlaegtGerade = false;
         }
 
         void Schlaggeraeusch()
@@ -464,6 +560,16 @@ namespace Vrithof.Zombies
             if (stimme == null || schlagKlang == null) return;
             stimme.pitch = Random.Range(0.85f, 1.15f);
             stimme.PlayOneShot(schlagKlang, lautstaerke);
+        }
+
+        Vector3 StossRichtung(Openable gegen)
+        {
+            Vector3 hin = gegen != null
+                ? gegen.transform.position - transform.position
+                : ziel != null ? ziel.position - transform.position
+                               : transform.forward;
+            hin.y = 0f;
+            return hin.sqrMagnitude < 0.01f ? transform.forward : hin.normalized;
         }
 
         // Flach messen: die Pivots liegen auf unterschiedlicher Hoehe, das soll

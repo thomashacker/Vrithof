@@ -9,11 +9,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5891237010042711980}
-  - component: {fileID: 5064945277196779433}
-  - component: {fileID: 2919113841153743777}
   - component: {fileID: 2043591022790170976}
   - component: {fileID: 981010482947491287}
   - component: {fileID: 6052528529709300583}
+  - component: {fileID: 854967162153012005}
   m_Layer: 0
   m_Name: Zombie
   m_TagString: Untagged
@@ -30,69 +29,13 @@ Transform:
   m_GameObject: {fileID: 3054395282544753294}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -8.28, y: 0.9718, z: 12.12}
+  m_LocalPosition: {x: 0, y: 1.25, z: 0}
   m_LocalScale: {x: 0.85, y: 0.85, z: 0.85}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 5418976452939827055}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &5064945277196779433
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3054395282544753294}
-  m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
---- !u!23 &2919113841153743777
-MeshRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3054395282544753294}
-  m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 2
-  m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
-  m_ForceMeshLod: -1
-  m_MeshLodSelectionBias: 0
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: bf66075624eee9449ac2a8418c403c78, type: 2}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 3
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_MaskInteraction: 0
-  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!136 &2043591022790170976
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -126,8 +69,8 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 1.8
-  m_Acceleration: 8
+  m_Speed: 0.45
+  m_Acceleration: 5
   avoidancePriority: 50
   m_AngularSpeed: 120
   m_StoppingDistance: 1.2
@@ -152,21 +95,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Vrithof.Zombies.Zombie
   ziel: {fileID: 0}
   zielIntervall: 0.2
-  angriffsReichweite: 1.8
+  angriffsReichweite: 2
   angriffsIntervall: 1
+  ausholAnteil: 0.4
+  angriffsStarre: 0.7
+  schwungWeite: 0.45
+  schwungDauer: 0.18
   schaden: 20
   schadenAnBarrikade: 10
   sichtWeite: 25
   sichtWinkel: 100
   bewegungsSchwelle: 0.05
+  augenHoehe: 0.6
+  nachtSicht: 0.4
   stoehnKlang: {fileID: 0}
   schlagKlang: {fileID: 0}
+  schrittKlang: {fileID: 0}
+  schrittWeite: 1.1
   lautstaerke: 0.6
   stoehnAbstandMin: 3
   stoehnAbstandMax: 9
   hoerweite: 25
   kegelZeigen: 1
-  gesichtZeigen: 1
+  gesichtZeigen: 0
   wandern: 1
   wanderTempo: 0.55
   wanderRadius: 25
@@ -174,3 +125,134 @@ MonoBehaviour:
   pauseMin: 2
   pauseMax: 8
   oeffnungsUmkreis: 12
+--- !u!114 &854967162153012005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3054395282544753294}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 12f2a5b052ddb204b9975dc321247226, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Vrithof.Zombies.ZombieAnimation
+  animator: {fileID: 0}
+  tempoParameter: Tempo
+  schlagAusloeser: Schlag
+  schrittfaktorParameter: Schrittfaktor
+  schlagClip: {fileID: -203655887218126122, guid: 9b59d45825cc0ca4b81df7e39571edfb, type: 3}
+  glaettung: 8
+  tempoStreuung: {x: 0.85, y: 1.15}
+  schritteAnpassen: 1
+  animationsTempo: 1.2
+--- !u!1001 &5530045555059859588
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 5891237010042711980}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: d299a0959dbe4764e9fa2acf38ba2d93, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.1764705
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d299a0959dbe4764e9fa2acf38ba2d93, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.1764705
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d299a0959dbe4764e9fa2acf38ba2d93, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.1764705
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d299a0959dbe4764e9fa2acf38ba2d93, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d299a0959dbe4764e9fa2acf38ba2d93, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d299a0959dbe4764e9fa2acf38ba2d93, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d299a0959dbe4764e9fa2acf38ba2d93, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d299a0959dbe4764e9fa2acf38ba2d93, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d299a0959dbe4764e9fa2acf38ba2d93, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d299a0959dbe4764e9fa2acf38ba2d93, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d299a0959dbe4764e9fa2acf38ba2d93, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d299a0959dbe4764e9fa2acf38ba2d93, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d299a0959dbe4764e9fa2acf38ba2d93, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: d299a0959dbe4764e9fa2acf38ba2d93, type: 3}
+      propertyPath: m_Name
+      value: Ch10_nonPBR
+      objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: d299a0959dbe4764e9fa2acf38ba2d93, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 52c44f8b5593b0d4bbd9bb877e7125cc, type: 2}
+    - target: {fileID: 5866666021909216657, guid: d299a0959dbe4764e9fa2acf38ba2d93, type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: d299a0959dbe4764e9fa2acf38ba2d93, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5185713253375425117}
+  m_SourcePrefab: {fileID: 100100000, guid: d299a0959dbe4764e9fa2acf38ba2d93, type: 3}
+--- !u!1 &4647647693179395541 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: d299a0959dbe4764e9fa2acf38ba2d93, type: 3}
+  m_PrefabInstance: {fileID: 5530045555059859588}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &5185713253375425117
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4647647693179395541}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 582ae77a6c9a8864a98ca028ce532eb4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Vrithof.Zombies.ZombieBlick
+  ziel: {fileID: 0}
+  zielHoehe: 1.5
+  blickWeite: 20
+  maxWinkel: 110
+  gewicht: 0.9
+  koerperAnteil: 0.25
+  kopfAnteil: 1
+  blenden: 4
+--- !u!4 &5418976452939827055 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: d299a0959dbe4764e9fa2acf38ba2d93, type: 3}
+  m_PrefabInstance: {fileID: 5530045555059859588}
+  m_PrefabAsset: {fileID: 0}

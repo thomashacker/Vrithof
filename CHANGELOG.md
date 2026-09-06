@@ -5,6 +5,11 @@ Nur was im Spiel gelandet ist.
 
 ---
 
+## 2026-09-06 — M5b: Der Zombie
+- Mixamo-Modell statt Kapsel: Animator mit Blend Tree, Tempo und Schrittgeschwindigkeit leiten sich aus einer einzigen Zahl ab
+- Schlag mit Ausholzeit statt Sofortschaden — Ausweichen ist möglich —, Starre aus der Cliplänge und Vorwärtsschub beim Treffer
+- Kopf folgt dem Spieler über Unitys eingebaute Blick-IK; Git LFS für FBX eingerichtet
+
 ## 2026-09-05 — Nacht spielbar machen
 - Schlafsystem: Bett, Zeitraffer statt Warten, Aufwachen wenn ein Zombie nah kommt — damit haben die Barrikaden endlich einen Zweck
 - Orientierung im Dunkeln: anzündbare Feuerstellen (Wegmarke und Lockmittel zugleich), `Wegenetz` zwischen den Gehöften, `Weltgrenze` gegen das Herunterfallen

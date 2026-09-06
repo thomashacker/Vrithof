@@ -67,14 +67,14 @@ namespace Vrithof.Zeit
         public event Action<int> TagBeginnt;
 
         public float Stunde => stunde;
-        public int Tag => tag;
+        public int Tag => tagZaehler;
         /// 1 bei vollem Tag, 0 in tiefer Nacht, dazwischen die Daemmerung.
         /// Wer sich danach richten will (die Fackel tut es), fragt hier.
         public float Tageslicht { get; private set; } = 1f;
         public bool IstNacht => stunde >= nachtBeginn || stunde < nachtEnde;
 
         float stunde;   // 0..24
-        int tag = 1;
+        int tagZaehler = 1;   // nicht 'tag': das gehoert Component
         bool warNacht;
         Light sonne;
         float maxIntensitaet;
@@ -105,7 +105,7 @@ namespace Vrithof.Zeit
         {
             float stundenProSekunde = 24f / (Mathf.Max(0.1f, tagLaengeMinuten) * 60f);
             stunde += stundenProSekunde * Time.deltaTime;
-            while (stunde >= 24f) { stunde -= 24f; tag++; }
+            while (stunde >= 24f) { stunde -= 24f; tagZaehler++; }
             Anwenden();
             UebergangPruefen();
         }
@@ -115,8 +115,8 @@ namespace Vrithof.Zeit
             bool jetztNacht = IstNacht;
             if (jetztNacht == warNacht) return;
             warNacht = jetztNacht;
-            if (jetztNacht) NachtBeginnt?.Invoke(tag);
-            else TagBeginnt?.Invoke(tag);
+            if (jetztNacht) NachtBeginnt?.Invoke(tagZaehler);
+            else TagBeginnt?.Invoke(tagZaehler);
         }
 
         void Anwenden()
@@ -167,7 +167,7 @@ namespace Vrithof.Zeit
             style.normal.textColor = Color.white;
             if (IstNacht) style.normal.textColor = new Color(0.6f, 0.75f, 1f);
             GUI.Label(new Rect(12, 8, 300, 30),
-                      $"Tag {tag} · {h:00}:{m:00}{(IstNacht ? "  ☾" : "")}", style);
+                      $"Tag {tagZaehler} · {h:00}:{m:00}{(IstNacht ? "  ☾" : "")}", style);
         }
     }
 }

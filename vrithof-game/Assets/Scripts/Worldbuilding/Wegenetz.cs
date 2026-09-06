@@ -36,7 +36,7 @@ namespace Vrithof.Worldbuilding
             Loeschen();
 
             var gehoefte = new List<GehoeftZustand>(
-                FindObjectsByType<GehoeftZustand>(FindObjectsSortMode.None));
+                FindObjectsByType<GehoeftZustand>());
             if (gehoefte.Count < 2)
             {
                 Debug.LogWarning("Wegenetz: weniger als zwei Gehoefte gefunden.", this);

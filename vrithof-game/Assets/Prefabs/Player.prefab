@@ -84,10 +84,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9e382ff33e9318438578f56cc21338e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Vrithof.Spieler.SpielerController
-  gehTempo: 4
-  sprintTempo: 6
-  duckTempo: 1.6
-  beschleunigung: 4
+  gehTempo: 2.2
+  sprintTempo: 4.2
+  duckTempo: 1
+  beschleunigung: 3.5
   sprungHoehe: 1.2
   schwerkraft: -15
   sprungPause: 0.1
@@ -265,11 +265,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Vrithof.Spieler.Ausdauer
   maxAusdauer: 100
-  verbrauchProSekunde: 20
-  sprungKosten: 15
+  verbrauchProSekunde: 15
+  sprungKosten: 25
   kletterKosten: 22
   ruheRegeneration: 15
-  gehRegeneration: 2
+  gehRegeneration: 3
   erholungsSchwelle: 0.25
   balkenZeigen: 1
 --- !u!114 &3701780885336675222
