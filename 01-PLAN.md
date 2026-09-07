@@ -176,6 +176,11 @@ Abschnitt 11.
 Humanoid-taugliche Proportionen, damit ein Mixamo-Rig passt. Trennstellen für
 Kopf und Arme schon in der Topologie vorsehen.
 
+*Ein vorhandenes, schon geriggtes **Skelett** ist der bessere Start als ein
+Zombie von null: starre Knochen brauchen kein gutes Weight Painting, haben
+natürliche Trennstellen, und Fantasy ist ohnehin nicht ausgeschlossen
+(`02-DESIGN.md` Abschnitt 11).*
+
 **A1.2 — Rig drauf, Modell prüfen.** Fertiges Rig übernehmen, vorhandene
 Animationen weiterlaufen lassen. Erst hier zeigt sich, ob das Modell trägt.
 

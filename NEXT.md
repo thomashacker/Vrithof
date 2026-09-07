@@ -21,7 +21,8 @@ Pause zurückholt._
 > **A1 — Der Zombie.** Neuer Schwerpunkt, siehe `02-DESIGN.md` Abschnitt 11 und
 > den Fahrplan in `01-PLAN.md`. Erster Schritt: **A1.1 Blender-Modell** im
 > Valheim-Stil, humanoid-taugliche Proportionen für ein Mixamo-Rig, Trennstellen
-> für Kopf und Arme in der Topologie vorsehen.
+> für Kopf und Arme in der Topologie vorsehen. **Das vorhandene geriggte Skelett
+> aus Blender ist der bessere Start** — siehe Begründung in `01-PLAN.md`.
 
 **Wo der Hund begraben liegt:**
 

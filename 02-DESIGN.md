@@ -35,6 +35,17 @@ Vorbereitung bestimmt Reichweite) · 7 Days to Die (Verteidigung gegen Horden).
 Planung belohnt wird. Je besser vorbereitet, desto weiter komme ich. Je mehr Arbeit ich
 in Basis und Wege stecke, desto mehr schaffe ich.
 
+### Was über allem steht
+
+**Interaktivität.** Alles, was der Spieler tut, soll die Welt beeinflussen und
+Konsequenzen haben. Nicht Zahlen, die hochgehen — sondern eine Welt, die sich
+merkt, was passiert ist: eine leergeplünderte Truhe, ein aufgebrochenes Gehöft,
+ein Feuer, das man selbst entzündet hat, eine Leiche, die dort liegt, wo man
+gekämpft hat.
+
+Das ist die Messlatte, an der neue Features gemessen werden — noch vor Umfang
+und noch vor Optik.
+
 **Die Nische ist real.** Es gibt Grim Realms (Mittelalter-Kolonie gegen Untote, aber
 reiner Management-Sim), Rebuild 3 (Wiederaufbau, aber modern und rundenbasiert), They
 Are Billions, Going Medieval, Necesse. Was praktisch nicht existiert: Zomboid-artige
@@ -236,6 +247,25 @@ Einstellungen, keine Kunstfertigkeit:
 | Harter Licht-Kontrast | Eine Directional Light, tief stehend, warm gegen kalte Schatten |
 | Post-Processing | Volume: ACES-Tonemapping, Color Grading (Sättigung runter), dezentes Bloom, Vignette |
 | Bewegung | Wind in Vegetation, Rauch aus Kaminen, Staub im Lichtstrahl, Funken am Feuer |
+
+**Der Begriff dafür ist „Lo-Fi HD":** niedrig auflösende Texturen und sparsame
+Geometrie, kombiniert mit moderner Beleuchtung, Nebel und Post-Processing. Die
+Texturen sind bewusst **pixelig** — PS1-Ästhetik, nicht Unschärfe.
+
+Daraus folgt eine Einstellung, die man beim ersten Import garantiert falsch
+macht: Beim Textur-Import muss **`Filter Mode` auf `Point (no filter)`** stehen,
+sonst verwäscht Unity eine 32×32-Textur zu Matsch statt scharfe Pixel zu zeigen.
+Dazu `Compression: None` — bei dieser Größe kostet es nichts und spart Artefakte.
+
+Zwei Wege für die Oberfläche, und sie unterscheiden sich im Aufwand deutlich:
+
+| | Aufwand | Ergebnis |
+|---|---|---|
+| **Farbatlas** (Synty-Trick, Abschnitt 7) | fast null | flache Farben, sauber, ohne Charakter |
+| **Kleine gemalte Textur** (Valheim-Weg), 64×64 | man muss malen | Pixel-Details: Nähte, Flecken, Augen |
+
+Für ein erstes Modell reicht der Farbatlas — dann steht die Form, und die Textur
+ist der Schritt danach.
 
 Nebel plus Post-Processing sind zwei Stunden Reglerdrehen und machen optisch mehr aus
 als jede Woche Modellierarbeit. In First Person mit echter mittelalterlicher Dunkelheit
@@ -463,6 +493,18 @@ Animation im Normalfall, Ragdoll im Ereignisfall, weiches Blenden zurück.
 > **Die Messlatte:** vereinfacht, getrickst, billig — es muss sich gut anfühlen,
 > nicht korrekt simulieren. Sobald etwas nach Simulation aussieht statt nach
 > Spiel, ist es der falsche Weg.
+
+### Nicht auf Zombies festlegen
+
+Der Gegner muss kein Zombie bleiben. Alles, was hier beschrieben ist — greifen,
+umfallen, stolpern, Gliedmaßen verlieren — funktioniert für **jedes Monster**.
+Sobald das System steht, kostet eine zweite Gegnerklasse fast nur noch ein
+Modell.
+
+Damit ist auch die Richtung des Spiels offen: aus Mittelalter mit Untoten kann
+Mittelalter-Fantasy werden. **Das wird nicht jetzt entschieden.** Erst anfangen,
+dann schauen, wo man landet — nur die Systeme so bauen, dass sie nicht auf
+„Zombie" festgenagelt sind.
 
 ### Eigenes Modell
 
