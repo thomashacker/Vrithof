@@ -154,6 +154,9 @@ namespace Vrithof.Spieler
         bool KannDurchsteigen(Openable o)
         {
             if (!o.IstOffen) return false;
+            // Durch eine Tuer geht man, nicht darueber. Klettern gibt es nur,
+            // wo eine Bruestung im Weg ist.
+            if (o.HatTuerblatt) return false;
             if (kraft != null && !kraft.Reicht(kraft.kletterKosten)) return false;
             Vector3 d = o.transform.position - transform.position;
             d.y = 0f;
@@ -201,7 +204,7 @@ namespace Vrithof.Spieler
             }
 
             bool nageln = Keyboard.current.eKey.isPressed && Machbar(imVisier);
-            bool reissen = Keyboard.current.qKey.isPressed && imVisier.KannAbbauen;
+            bool reissen = Keyboard.current.qKey.isPressed && KannAbbauen(imVisier);
 
             // Beides gleichzeitig ergibt keinen Sinn — Nageln gewinnt.
             if (!nageln && !reissen)
@@ -255,6 +258,12 @@ namespace Vrithof.Spieler
                 quelle.PlayOneShot(hammerKlang, lautstaerke);
             }
         }
+
+        // Bretter sitzen innen. Von draussen kommt man nicht an sie heran —
+        // sonst koennte man ein fremdes Gehoeft aufbrechen, indem man die
+        // Barrikade abschraubt statt sie einzuschlagen.
+        bool KannAbbauen(Openable o) =>
+            o.KannAbbauen && o.IstInnenseite(transform.position);
 
         // Lohnt sich das Haemmern hier ueberhaupt?
         bool Machbar(Openable o)
@@ -507,16 +516,17 @@ namespace Vrithof.Spieler
             if (imVisier.TuerBedienbar)
                 zweite = imVisier.TuerOffen ? "[E] tippen — Tür schließen"
                                             : "[E] tippen — Tür öffnen";
-            else if (imVisier.KannAbbauen)
+            else if (KannAbbauen(imVisier))
             {
                 string werkzeug = axt != null && axt.IstScharf ? " mit Axt" : "";
                 zweite = $"[Q] halten — Brett ab{werkzeug} (+{imVisier.eisenZurueck})";
             }
-            if (imVisier.IstOffen)
-            {
-                text = KannDurchsteigen(imVisier) ? "[F] durchsteigen" : "zu erschoepft";
-                zweite = null;
-            }
+
+            // Ein offenes Fenster kann man durchsteigen *und* zunageln. Vorher
+            // hat der Kletter-Hinweis den anderen verdeckt.
+            if (imVisier.IstOffen && !imVisier.HatTuerblatt)
+                zweite = KannDurchsteigen(imVisier) ? "[F] durchsteigen"
+                                                    : "zu erschöpft zum Klettern";
 
             Zeile(my + 20, text, Color.white, 16);
             if (zweite != null) Zeile(my + 42, zweite, Color.white, 16);

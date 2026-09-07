@@ -23,9 +23,10 @@ namespace Vrithof.Zombies
         public float maxLeben = 100f;
 
         [Header("Rueckstoss")]
-        [Tooltip("Wie weit ein Treffer ihn zurueckwirft. Verschafft Luft — und " +
-                 "ist der Grund, warum ein einzelner Zombie zu schaffen ist.")]
-        public float rueckstoss = 0.6f;
+        [Tooltip("Wie weit ein Treffer ihn zurueckwirft. Standardmaessig 0: mit " +
+                 "Rueckstoss reicht Stehenbleiben und Draufhauen, weil er nie " +
+                 "in Reichweite kommt. Ohne muss man selbst Abstand halten.")]
+        public float rueckstoss;
         public float rueckstossDauer = 0.15f;
 
         [Header("Leiche")]

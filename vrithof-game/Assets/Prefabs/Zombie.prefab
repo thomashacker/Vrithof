@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 6052528529709300583}
   - component: {fileID: 854967162153012005}
   - component: {fileID: 8520107626649898052}
+  - component: {fileID: 5285179442384176302}
   m_Layer: 0
   m_Name: Zombie
   m_TagString: Untagged
@@ -165,6 +166,25 @@ MonoBehaviour:
   bewegungsSchwelle: 0.05
   augenHoehe: 0.6
   taktung: 0.2
+--- !u!114 &5285179442384176302
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3054395282544753294}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0199fc3f53d7b63469f93eb46af0faf8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Vrithof.Zombies.ZombieLeben
+  maxLeben: 100
+  rueckstoss: 0.6
+  rueckstossDauer: 0.15
+  verfallSekunden: 45
+  trefferKlang: {fileID: 0}
+  todesKlang: {fileID: 0}
+  lautstaerke: 0.7
 --- !u!1001 &5530045555059859588
 PrefabInstance:
   m_ObjectHideFlags: 0

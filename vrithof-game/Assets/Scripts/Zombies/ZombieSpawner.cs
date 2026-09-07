@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using Vrithof.Welt;
+using Vrithof.Worldbuilding;
 using Vrithof.Zeit;
 
 namespace Vrithof.Zombies
@@ -31,7 +33,13 @@ namespace Vrithof.Zombies
         public int hordenGroesse = 10;
 
         [Header("Wo")]
-        [Tooltip("Sie kommen von draussen — Abstand vom Spieler.")]
+        [Tooltip("Am Rand der Welt absetzen statt um den Spieler herum. Dann " +
+                 "kommen sie wirklich von draussen und ziehen herein, statt aus " +
+                 "dem Nichts neben der Basis zu erscheinen.")]
+        public bool amWeltrand = true;
+        [Tooltip("Wie weit innerhalb der Grenze sie erscheinen.")]
+        public float randAbstand = 6f;
+        [Tooltip("Nur ohne Weltrand: Abstand vom Spieler.")]
         public float minAbstand = 30f;
         public float maxAbstand = 45f;
         [Tooltip("Wie weit vom Zufallspunkt aus nach begehbarem Boden gesucht wird.")]
@@ -48,6 +56,7 @@ namespace Vrithof.Zombies
 
         readonly List<GameObject> gespawnt = new List<GameObject>();
         Transform spieler;
+        Weltgrenze grenze;
 
         void Start()
         {
@@ -60,6 +69,11 @@ namespace Vrithof.Zombies
 
             var p = GameObject.FindGameObjectWithTag("Player");
             if (p != null) spieler = p.transform;
+
+            grenze = FindAnyObjectByType<Weltgrenze>();
+            if (amWeltrand && grenze == null)
+                Debug.LogWarning("ZombieSpawner: keine Weltgrenze gefunden, " +
+                                 "setze am Spieler ab.", this);
 
             zyklus.NachtBeginnt += NachtBeginnt;
             zyklus.TagBeginnt += TagBeginnt;
@@ -108,14 +122,38 @@ namespace Vrithof.Zombies
             gespawnt.RemoveAll(z => z == null);
         }
 
+        Vector3 UmDenSpieler(Vector3 mitte)
+        {
+            Vector2 richtung = Random.insideUnitCircle.normalized;
+            float weite = Random.Range(minAbstand, maxAbstand);
+            return mitte + new Vector3(richtung.x, 0f, richtung.y) * weite;
+        }
+
+        // Eine der vier Kanten wuerfeln, dann eine Stelle darauf. Nicht die
+        // naechstgelegene: sie sollen aus allen Richtungen kommen, nicht immer
+        // von derselben Seite.
+        Vector3 AmRand()
+        {
+            Bounds b = grenze.Flaeche;
+            float x = b.extents.x - randAbstand;
+            float z = b.extents.z - randAbstand;
+            Vector3 m = b.center;
+
+            switch (Random.Range(0, 4))
+            {
+                case 0:  return new Vector3(m.x + Random.Range(-x, x), m.y, m.z + z);
+                case 1:  return new Vector3(m.x + Random.Range(-x, x), m.y, m.z - z);
+                case 2:  return new Vector3(m.x + x, m.y, m.z + Random.Range(-z, z));
+                default: return new Vector3(m.x - x, m.y, m.z + Random.Range(-z, z));
+            }
+        }
+
         void Absetzen()
         {
             if (zombiePrefab == null) return;
 
             Vector3 mitte = spieler != null ? spieler.position : transform.position;
-            Vector2 richtung = Random.insideUnitCircle.normalized;
-            float weite = Random.Range(minAbstand, maxAbstand);
-            Vector3 wunsch = mitte + new Vector3(richtung.x, 0f, richtung.y) * weite;
+            Vector3 wunsch = amWeltrand && grenze != null ? AmRand() : UmDenSpieler(mitte);
 
             // Der Zufallspunkt liegt selten genau auf begehbarem Boden.
             if (!NavMesh.SamplePosition(wunsch, out var treffer, navSuchradius, NavMesh.AllAreas))

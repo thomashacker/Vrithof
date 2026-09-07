@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Vrithof.Welt;
@@ -46,6 +47,11 @@ namespace Vrithof.Spieler
         public float ausdauerKosten = 25f;
         [Tooltip("Wie weit ein Schlag zu hoeren ist. Zwischen Gehen und Sprinten.")]
         public float laerm = 18f;
+        [Tooltip("Tempo waehrend eines Schlags, als Anteil des normalen. Ohne " +
+                 "diese Bremse kann man rueckwaerts gehen und dabei zuschlagen, " +
+                 "und der Kampf kostet nichts.")]
+        [Range(0.1f, 1f)]
+        public float tempoBeimSchlagen = 0.35f;
 
         [Header("Klang")]
         [Tooltip("Leer lassen — dann wird ein Platzhalter erzeugt.")]
@@ -61,10 +67,15 @@ namespace Vrithof.Spieler
         Axt axt;
         SpielerLaerm geraeusch;
         Schlafen schlaf;
+        SpielerController controller;
         Camera blick;
         AudioSource quelle;
         float rueckmeldungBis;
         string rueckmeldung = "";
+        // Erst sammeln, dann zuschlagen. Ein toedlicher Treffer meldet den
+        // Zombie aus Zombie.Alle ab — mitten in einer foreach-Schleife ueber
+        // genau diese Liste wirft das eine Exception.
+        readonly List<ZombieLeben> getroffene = new List<ZombieLeben>();
 
         void Awake()
         {
@@ -72,11 +83,17 @@ namespace Vrithof.Spieler
             axt = GetComponent<Axt>();
             geraeusch = GetComponent<SpielerLaerm>();
             schlaf = GetComponent<Schlafen>();
+            controller = GetComponent<SpielerController>();
 
             if (hiebKlang == null) hiebKlang = Klangwerkstatt.Hieb();
             quelle = gameObject.AddComponent<AudioSource>();
             quelle.playOnAwake = false;
             quelle.spatialBlend = 0f;
+        }
+
+        void OnDisable()
+        {
+            if (controller != null) controller.tempoDaempfer = 1f;
         }
 
         void Update()
@@ -99,6 +116,7 @@ namespace Vrithof.Spieler
         {
             SchlaegtGerade = true;
             if (kraft != null) kraft.Verbrauchen(ausdauerKosten);
+            if (controller != null) controller.tempoDaempfer = tempoBeimSchlagen;
 
             // Der Krach entsteht beim Ausholen, nicht beim Treffer: das Rauschen
             // der Klinge ist da, auch wenn man danebenhaut.
@@ -110,6 +128,7 @@ namespace Vrithof.Spieler
             Treffen();
 
             yield return new WaitForSeconds(nachschwingen);
+            if (controller != null) controller.tempoDaempfer = 1f;
             SchlaegtGerade = false;
         }
 
@@ -123,7 +142,7 @@ namespace Vrithof.Spieler
             richtung.y = 0f;
             richtung.Normalize();
 
-            int getroffen = 0;
+            getroffene.Clear();
 
             // Ueber das Register statt ueber Physik: die Zombie-Collider sind
             // Kapseln, und ein Kegel trifft naeher an dem, was man sieht.
@@ -146,10 +165,20 @@ namespace Vrithof.Spieler
                     && sperre.collider.GetComponentInParent<Zombie>() != z)
                     continue;
 
-                leben.Schaden(schaden, hin.normalized);
-                getroffen++;
+                getroffene.Add(leben);
             }
 
+            // Erst hier Schaden austeilen: waehrend der Schleife wuerde ein
+            // toedlicher Treffer die Liste veraendern, ueber die wir gerade
+            // laufen.
+            foreach (var leben in getroffene)
+            {
+                Vector3 hin = leben.transform.position - transform.position;
+                hin.y = 0f;
+                leben.Schaden(schaden, hin.normalized);
+            }
+
+            int getroffen = getroffene.Count;
             if (getroffen == 0) return;
 
             // Die Klinge nimmt es uebel — dieselbe Abnutzung wie beim Aufbrechen.

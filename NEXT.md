@@ -7,24 +7,31 @@ Pause zurückholt._
 
 **Zuletzt gemacht:**
 
-> **M5b fertig.** Nahkampf mit der Axt (Ausholzeit, Ausdauerkosten, Zombies mit
-> Lebenspunkten und Leichen), Türblatt zum Auf- und Zumachen, Loot-Plätze im
-> GehoeftBuilder. Das Zombie-Verhalten ist eine Zustandsmaschine geworden und
-> `ZombieSinne` steckt in einer eigenen Datei.
+> **Das GATE ist bestanden.** Fünf Tage am Stück gespielt, der Loop trägt.
+> Antworten in `02-DESIGN.md` Abschnitt 5. Dazu eine Runde Politur: kein Klettern
+> durch Türen, Bretter nur von innen abbaubar, Zombies kommen vom Weltrand,
+> längere Dämmerung, Schlagen bremst das Tempo statt Zombies zurückzuwerfen.
 
 **Läuft der Build?**
 
-> Ja, und flüssig — auch mit 150 Zombies im Stresstest.
+> Ja. Fünf Tage überlebt, ohne dass es langweilig wurde.
 
 **Als Nächstes dran:**
 
-> **Das GATE.** Drei Abende richtig spielen, dann die fünf Fragen aus `02-DESIGN.md`
-> Abschnitt 5 ehrlich beantworten. Alle Meilensteine sind durch.
-> Offen geblieben aus M5b: Arme greifen per `TwoBoneIKConstraint`, Grab-Mechanik.
-> Alternativ die **Blender-Spur** (Gehöft-Kit, Verdecker).
+> **A1 — Der Zombie.** Neuer Schwerpunkt, siehe `02-DESIGN.md` Abschnitt 11 und
+> den Fahrplan in `01-PLAN.md`. Erster Schritt: **A1.1 Blender-Modell** im
+> Valheim-Stil, humanoid-taugliche Proportionen für ein Mixamo-Rig, Trennstellen
+> für Kopf und Arme in der Topologie vorsehen.
 
 **Wo der Hund begraben liegt:**
 
+> **Balance ist noch offen, drei Punkte aus dem GATE-Test:** Zombies sind allein
+> zu harmlos (Tempo 0.45 gegen Gehen 4 — Vorschlag 2.0–2.6, dann `animationsTempo`
+> mitziehen), mit der Axt zu leicht zu töten (`maxLeben` 150 statt 100), und sie
+> treten zu selten in Gruppen auf (`normaleNacht` 5, `hordenGroesse` 12).
+>
+> **Barrikaden-HP** stehen am `GehoeftZustand` jedes Gehöfts (`brettHP`, 120).
+>
 > **Debug-Anzeigen kosten Leistung.** `zustandZeigen` am Zombie-Prefab und die
 > Gizmos in der Game-View spürbar ausschalten, wenn es flüssig laufen soll —
 > `Handles.Label` ist teuer. Beim Messen daran denken: `EditorLoop` war 68 % der
@@ -78,4 +85,4 @@ Pause zurückholt._
 
 ---
 
-**Aktueller Meilenstein:** GATE
+**Aktueller Meilenstein:** A1.1 — Blender-Modell

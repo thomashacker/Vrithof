@@ -46,11 +46,14 @@ namespace Vrithof.Zombies
         public float blenden = 4f;
 
         Animator animator;
+        ZombieLeben leben;
         float aktuellesGewicht;
 
         void Awake()
         {
             animator = GetComponent<Animator>();
+            // Sitzt auf der Wurzel, dieses Skript auf dem Modell darunter.
+            leben = GetComponentInParent<ZombieLeben>();
         }
 
         void Start()
@@ -63,6 +66,14 @@ namespace Vrithof.Zombies
         void OnAnimatorIK(int layer)
         {
             if (animator == null || ziel == null) return;
+
+            // Eine Leiche sieht niemandem mehr nach. Ohne das folgt der Kopf
+            // weiter, und das ist unheimlich auf die falsche Art.
+            if (leben != null && leben.Tot)
+            {
+                animator.SetLookAtWeight(0f);
+                return;
+            }
 
             Vector3 punkt = ziel.position + Vector3.up * zielHoehe;
             float soll = Erwuenscht(punkt) ? gewicht : 0f;

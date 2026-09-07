@@ -92,6 +92,7 @@ namespace Vrithof.Worldbuilding
         GameObject rahmen;
         NavMeshLink link;
         NavMeshObstacle sperre;
+        Transform mitte;
         Transform tuerAngel;
         Collider blattCollider;
         float schwung;
@@ -117,6 +118,8 @@ namespace Vrithof.Worldbuilding
         void Awake()
         {
             slot = GetComponent<OpeningSlot>();
+            var gehoeft = GetComponentInParent<GehoeftZustand>();
+            mitte = gehoeft != null ? gehoeft.transform : transform.parent?.parent;
             ZielflaecheErzeugen();
             BretterErzeugen();
             RahmenErzeugen();
@@ -159,6 +162,24 @@ namespace Vrithof.Worldbuilding
             }
 
             return false;
+        }
+
+        /// Liegt dieser Punkt auf der Innenseite? Gemessen wird gegen die Mitte
+        /// des Gehoefts, nicht gegen die Wandnormale — die zeigt je nach Wand
+        /// nach innen oder aussen.
+        ///
+        /// Gebraucht wird das, weil Bretter innen angenagelt sind: von draussen
+        /// kommt man nicht an sie heran.
+        public bool IstInnenseite(Vector3 punkt)
+        {
+            if (mitte == null) return true;   // kein Gehoeft erkennbar: erlauben
+
+            Vector3 zurMitte = mitte.position - transform.position;
+            Vector3 zumPunkt = punkt - transform.position;
+            zurMitte.y = 0f;
+            zumPunkt.y = 0f;
+
+            return Vector3.Dot(zurMitte, zumPunkt) > 0f;
         }
 
         /// Auf- oder zumachen. Gibt false zurueck, wenn das gerade nicht geht.

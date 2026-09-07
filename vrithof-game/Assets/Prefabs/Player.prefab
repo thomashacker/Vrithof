@@ -23,6 +23,7 @@ GameObject:
   - component: {fileID: 1982602336103481695}
   - component: {fileID: 6497414952544727619}
   - component: {fileID: 4724323669764339542}
+  - component: {fileID: 5174380858986555636}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -410,6 +411,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Vrithof.Spieler.Schlafen
   ausgeruhtAufwachen: 1
   schleierZeigen: 1
+--- !u!114 &5174380858986555636
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 863333754217204002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3b199cb24681f64286913b2a69487e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Vrithof.Spieler.Nahkampf
+  reichweite: 2.2
+  kegel: 90
+  ausholZeit: 0.28
+  nachschwingen: 0.42
+  schadenMitAxt: 55
+  schadenOhneAxt: 12
+  ausdauerKosten: 25
+  laerm: 18
+  hiebKlang: {fileID: 0}
+  lautstaerke: 0.5
+  hinweisZeigen: 1
 --- !u!1 &1148076288544165665
 GameObject:
   m_ObjectHideFlags: 0

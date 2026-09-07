@@ -32,14 +32,24 @@ namespace Vrithof.Worldbuilding
         [Tooltip("Wohin zurueckgesetzt wird. Leer = Mitte der Flaeche.")]
         public Transform rettungsPunkt;
 
+        /// Die begehbare Flaeche, die diese Grenze umschliesst. Der
+        /// Zombie-Spawner setzt daran seine Randpositionen ab.
+        public Bounds Flaeche => flaeche;
+
         Transform spieler;
         CharacterController spielerKoerper;
         Bounds flaeche;
         bool bereit;
 
+        void Awake()
+        {
+            // Vor Start lesen: der Spawner fragt die Flaeche in seinem Start ab.
+            FlaecheLesen();
+        }
+
         void Start()
         {
-            if (!FlaecheLesen()) return;
+            if (!bereit) return;
             MauerBauen();
 
             var p = GameObject.FindGameObjectWithTag("Player");

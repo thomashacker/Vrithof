@@ -142,6 +142,12 @@ namespace Vrithof.Zombies
         void Tod()
         {
             if (animator == null) return;
+
+            // Jetzt darf die Animation die Wurzel bewegen. Solange er lebt,
+            // steuert der Agent — der ist beim Tod abgeschaltet, und ohne Root
+            // Motion legt sich der Koerper um einen Punkt, der in der Luft
+            // haengen bleibt, statt zu Boden zu gehen.
+            animator.applyRootMotion = true;
             // Wieder auf normale Geschwindigkeit: der Schrittfaktor gilt nur
             // fuer den Lauf-State, aber die Streuung wirkt global weiter.
             if (hatTempo) animator.SetFloat(tempoId, 0f);

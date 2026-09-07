@@ -5,6 +5,11 @@ Nur was im Spiel gelandet ist.
 
 ---
 
+## 2026-09-07 — GATE bestanden
+- Fünf Tage am Stück gespielt, der Loop trägt; Antworten in `02-DESIGN.md` Abschnitt 5
+- Neuer Schwerpunkt festgehalten: der Zombie (Abschnitt 11), Fahrplan A1 im Plan
+- Politur: kein Klettern durch Türen, Bretter nur von innen, Zombies kommen vom Weltrand, längere Dämmerung, Schlagen bremst statt zurückzuwerfen
+
 ## 2026-09-07 — M5b: Nahkampf, Türen, Zustandsmaschine
 - Nahkampf mit Axt: Ausholzeit statt Sofortschaden, Ausdauerkosten, Zombies mit Lebenspunkten, Rückstoß und Leichen
 - Türblatt zum Öffnen und Schließen; Zombies wissen nichts mehr über offene Fenster auf der Rückseite

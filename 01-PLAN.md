@@ -14,8 +14,9 @@
 - [x] M4 — Der Loop schließt sich ⭐ **← der eigentliche POC**
 - [x] M5a — Eisen bekommt Sinn
 - [x] M5b — Es fühlt sich gut an
-- [ ] **GATE** — die ehrliche Frage
-- [ ] Ausbaustufe 2
+- [x] **GATE** — bestanden (07.09.2026)
+- [ ] **A1 — Der Zombie** ⭐ der neue Schwerpunkt
+- [ ] Ausbaustufe 2 (Rest)
 
 ---
 
@@ -103,8 +104,14 @@ M3 und M4 schon entstanden.*
 > **Fertig, wenn:** du losziehst, um Eisen für die Axt zu holen.
 > **Fertig, wenn:** dir ein Zombie im Dunkeln einen Schreck einjagt.
 
-### GATE — die ehrliche Frage
-Drei Abende richtig spielen, dann die fünf Fragen in `02-DESIGN.md` beantworten.
+### GATE — bestanden am 07.09.2026
+Fünf Tage am Stück überlebt. Der Loop trägt und wurde beim Spielen von selbst
+beschrieben: *Basis clearen, looten, craften, weiterziehen, looten, Basis.*
+
+> *„In meinen Augen ist das schon ein richtiges Spiel mit Gameplay-Loop."*
+
+Antworten in `02-DESIGN.md` Abschnitt 5. **Ab hier wird ausgebaut** — und der
+Schwerpunkt verschiebt sich: siehe Abschnitt 11, *Der Zombie als Kern*.
 
 ---
 
@@ -159,7 +166,25 @@ Jetzt weißt du aus dem Blockout, was das Gehöft können muss. Modulares Kit:
 Die Unity-Würfel werden gegen die Modelle getauscht. Bei sauberer Prefab-Struktur: ein
 Nachmittag.
 
-### Session 9+ — M5 (erst 5a, dann 5b), dann das GATE
+### Session 9+ — M5 (erst 5a, dann 5b), dann das GATE ✅
+
+### Ab hier: A1 — Der Zombie
+Der Loop steht, der Schwerpunkt verschiebt sich. Warum und wohin: `02-DESIGN.md`
+Abschnitt 11.
+
+**A1.1 — Blender: das Modell.** Valheim-Stil, wenige Polygone, Farbatlas.
+Humanoid-taugliche Proportionen, damit ein Mixamo-Rig passt. Trennstellen für
+Kopf und Arme schon in der Topologie vorsehen.
+
+**A1.2 — Rig drauf, Modell prüfen.** Fertiges Rig übernehmen, vorhandene
+Animationen weiterlaufen lassen. Erst hier zeigt sich, ob das Modell trägt.
+
+**A1.3 — Entscheiden, was Physik übernimmt.** Danach ist klar, welche
+Animationen wirklich nötig sind — und welche Reaktionen aus Ragdoll-Blending,
+IK und ein paar Tricks entstehen können.
+
+**A1.4 — Greifen statt Schlagen.** Der Angriff wird ein Zugriff, aus dem man
+sich lösen muss.
 
 ---
 

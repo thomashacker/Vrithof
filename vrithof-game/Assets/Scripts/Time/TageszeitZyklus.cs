@@ -27,6 +27,17 @@ namespace Vrithof.Zeit
         [Range(15f, 90f)]
         public float maxSonnenhoehe = 55f;
 
+        [Header("Daemmerung")]
+        [Tooltip("Sonnenhoehe, unter der es vollstaendig dunkel ist (-1 bis 1). " +
+                 "Weiter ins Negative heisst: es bleibt laenger hell, nachdem " +
+                 "die Sonne den Horizont gekreuzt hat.")]
+        [Range(-1f, 0f)]
+        public float dunkelAb = -0.35f;
+        [Tooltip("Sonnenhoehe, ab der es voll hell ist. Der Abstand zu 'dunkelAb' " +
+                 "ist die Laenge der Daemmerung.")]
+        [Range(0f, 1f)]
+        public float hellAb = 0.15f;
+
         [Header("Dunkelheit")]
         [Tooltip("Umgebungslicht am Tag.")]
         public Color tagAmbient = new Color(0.45f, 0.47f, 0.5f);
@@ -131,7 +142,11 @@ namespace Vrithof.Zeit
             transform.rotation = Quaternion.Euler(hoehe * maxSonnenhoehe, azimut, 0f);
 
             // Tagesfaktor: 1 tagsueber, weicher Uebergang in der Daemmerung, 0 nachts.
-            float licht = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(-0.15f, 0.25f, hoehe));
+            // Die Schwellen bestimmen, wie lang die Daemmerung ist. Vorher lagen
+            // sie bei -0.15/0.25 — damit war es ab kurz nach 18 Uhr komplett
+            // schwarz, was den Abend praktisch verschluckt hat.
+            float licht = Mathf.SmoothStep(0f, 1f,
+                Mathf.InverseLerp(dunkelAb, Mathf.Max(dunkelAb + 0.05f, hellAb), hoehe));
             Tageslicht = licht;
 
             sonne.intensity = licht * maxIntensitaet;   // Licht bleibt aktiv -> Skybox behaelt Sonnenrichtung

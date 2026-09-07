@@ -56,6 +56,10 @@ namespace Vrithof.Spieler
         public float obenGrenze = 89f;
         public float untenGrenze = -89f;
 
+        /// Faktor auf das Tempo, den andere setzen duerfen — der Nahkampf
+        /// bremst damit waehrend eines Schlags. 1 heisst unveraendert.
+        [NonSerialized] public float tempoDaempfer = 1f;
+
         /// Von der Ausdauer gesetzt. Kein Herumschrauben an fremden Werten mehr.
         [NonSerialized] public bool sprintErlaubt = true;
         [NonSerialized] public bool sprungErlaubt = true;
@@ -140,6 +144,7 @@ namespace Vrithof.Spieler
             // Auf dem eigenen Wert aufbauen, nicht auf der gemessenen Geschwindigkeit:
             // an einer Wand ist die naemlich fast null, und der Spieler wuerde
             // an ihr entlangkriechen statt zu gleiten.
+            zielTempo *= Mathf.Clamp01(tempoDaempfer);
             Tempo = Mathf.Lerp(Tempo, zielTempo, Time.deltaTime * beschleunigung);
             if (Tempo < 0.01f) Tempo = 0f;
 

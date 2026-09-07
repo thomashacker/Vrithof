@@ -17,6 +17,7 @@
 8. [Zombies: Technik](#8-zombies-technik)
 9. [Ideen für später](#9-ideen-für-später)
 10. [Offene Punkte](#10-offene-punkte)
+11. [Der Zombie als Kern](#11-der-zombie-als-kern)
 
 ---
 
@@ -186,6 +187,23 @@ Dann ehrlich beantworten:
 5. Habe ich beim Spielen an Features gedacht, die ich einbauen will?
 
 **Vier von fünf Ja → weiterbauen.** Ausbaustufe 2, in Ruhe, Feature für Feature.
+
+### Beantwortet am 07.09.2026 — bestanden
+
+| | |
+|---|---|
+| 1. Auf die Uhr geschaut? | **Ja.** Der Rückweg vor der Dunkelheit ist Teil jeder Runde. |
+| 2. Vor dem Rausgehen überlegt? | **Ja.** Eisen für Barrikade oder für die Axt ist eine echte Frage. |
+| 3. Hat es sich mies angefühlt? | **Teilweise.** Die Nacht trägt, ist aber noch nicht bedrohlich genug — Zombies sind allein zu harmlos. |
+| 4. Sofort nochmal? | **Ja.** Fünf Tage am Stück, ohne dass es langweilig wurde. |
+| 5. An Features gedacht? | **Ja, viele** — und alle drehen sich um den Zombie. Daraus ist Abschnitt 11 geworden. |
+
+Der Loop wurde beim Spielen unaufgefordert so beschrieben: *Basis clearen,
+looten, craften, weiterziehen, looten, Basis.* Genau der Kreis aus Abschnitt 2.
+
+**Was bewusst fehlt und nicht gegen den Loop spricht:** kein Waffen-Viewmodel,
+keine Trefferzonen, keine Effekte, keine echten Sounds, eine flache Welt aus
+Blöcken. Das ist die Ausbau-Liste, nicht ein Mangel am Konzept.
 
 **Weniger → nicht mehr Features draufwerfen.** Erst die Stellschrauben drehen:
 Horden-Rhythmus, Eisen-Knappheit, Laufgeschwindigkeit, Tageslänge, Barrikaden-HP.
@@ -407,3 +425,49 @@ ein monatelanges Tuning-Loch.
 - **Gehöft-Layout.** Wie viele Öffnungen kann ein Spieler realistisch verteidigen?
   Reicht ein Raum oder braucht es einen Rückzugsraum? Beantwortet das Blockout in
   Session 1, bevor in Blender modelliert wird.
+
+---
+
+## 11. Der Zombie als Kern
+
+**Nach dem GATE verschiebt sich der Schwerpunkt.** Der Loop steht — was das Spiel
+von anderen unterscheiden soll, ist nicht die Nacht und nicht das Plündern,
+sondern **wie sich ein Zombie anfühlt, wenn man auf ihn einwirkt.**
+
+### Was sie tun sollen
+
+Nicht schlagen. **Sie wollen fressen** — greifen, ziehen, drücken, und nach
+allem beißen, was sie erreichen. Ein Treffer ist kein Faustschlag, sondern ein
+Zugriff, aus dem man sich lösen muss.
+
+### Was mit ihnen passieren soll
+
+| Einwirkung | Reaktion |
+|---|---|
+| Schubsen | fällt um — und anders, wenn eine Wand im Weg ist |
+| Von einer Kante | stürzt, entscheidet dann: aufstehen oder kriechen |
+| Speer in den Kopf | Kopf ab, sofort tot |
+| Schwert horizontal | Arm ab, oder er weicht aus, oder die Klinge bleibt stecken |
+| Beim Laufen | stolpert |
+
+### Die Bauregel — und die Grenze
+
+Ziel ist ein **Mix aus Physik, prozeduraler Bewegung und IK**, damit nicht für
+jede Situation eine eigene Animation nötig ist.
+
+**Aber:** Abschnitt 8 sagt bis heute *„Active Ragdoll nicht machen — ein
+monatelanges Tuning-Loch."* Das bleibt gültig. Der Weg dorthin ist **nicht**
+ein durchgehend physikgetriebener Körper, sondern **Umschalten und Zurückblenden**:
+Animation im Normalfall, Ragdoll im Ereignisfall, weiches Blenden zurück.
+
+> **Die Messlatte:** vereinfacht, getrickst, billig — es muss sich gut anfühlen,
+> nicht korrekt simulieren. Sobald etwas nach Simulation aussieht statt nach
+> Spiel, ist es der falsche Weg.
+
+### Eigenes Modell
+
+Der Zombie wird selbst in Blender gebaut, im Valheim-Stil (siehe Abschnitt 6):
+wenige Polygone, flache Farben, ein Farbpaletten-Atlas. Ein Mixamo- oder anderes
+fertiges Rig wird darübergezogen — dann laufen die vorhandenen Animationen
+weiter, und man sieht früh, ob das Modell trägt. Erst danach wird entschieden,
+was überhaupt animiert werden muss und was Physik und IK übernehmen.
